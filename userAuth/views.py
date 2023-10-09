@@ -30,7 +30,7 @@ def loginUser(
             print("--try block--")
 
         except User.DoesNotExist:
-            messages.error(request, "Check your email address or password")
+            messages.warning(request, "Check your email address or password")
             return redirect("loginUser")
         auth = authenticate(request, email=email, password=password)
         if auth is not None:
@@ -47,7 +47,7 @@ def loginUser(
 def logoutUser(request) -> HttpResponseRedirect | HttpResponsePermanentRedirect:
     logout(request)
     messages.success(request, "Logged out successfully")
-    return redirect("loginUser")
+    return redirect("index")
 
 
 def register(

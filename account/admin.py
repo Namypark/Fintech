@@ -1,10 +1,11 @@
 from django.contrib import admin
-from .models import Account
+from .models import Account, KYC
 from import_export.admin import ImportExportModelAdmin
 
 # Register your models here.
 
 
+@admin.register(Account)
 class AccountAdminModel(ImportExportModelAdmin):
     model = Account
     list_editable = ["status", "account_balance"]
@@ -12,4 +13,8 @@ class AccountAdminModel(ImportExportModelAdmin):
     list_filter = ["status"]
 
 
-admin.site.register(Account, AccountAdminModel)
+@admin.register(KYC)
+class KYCAdminModel(ImportExportModelAdmin):
+    model = KYC
+    search_fields = ["full_name"]
+    list_display = ["user", "full_name", "gender", "country"]

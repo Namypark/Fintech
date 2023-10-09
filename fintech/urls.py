@@ -16,11 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.conf.urls.static import static
+from django.conf import settings
+
+from fintech.settings import STATIC_URL
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("__reload__/", include("django_browser_reload.urls")),
+    path("chaining/", include("smart_selects.urls")),
     path("", include("core.urls")),
     path("auth/", include("userAuth.urls")),
     path("account/", include("account.urls")),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

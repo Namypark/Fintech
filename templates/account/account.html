@@ -1,0 +1,232 @@
+<li class="nav-item" role="presentation">
+  <button
+    class="nav-link"
+    id="security-tab"
+    data-bs-toggle="tab"
+    data-bs-target="#security"
+    type="button"
+    role="tab"
+    aria-controls="security"
+    aria-selected="false"
+  >
+    Security
+  </button>
+</li>
+<li class="nav-item" role="presentation">
+  <button
+    class="nav-link"
+    id="payment-tab"
+    data-bs-toggle="tab"
+    data-bs-target="#payment"
+    type="button"
+    role="tab"
+    aria-controls="payment"
+    aria-selected="false"
+  >
+    Payment Methods
+  </button>
+</li>
+<li class="nav-item" role="presentation">
+  <button
+    class="nav-link"
+    id="notification-tab"
+    data-bs-toggle="tab"
+    data-bs-target="#notification"
+    type="button"
+    role="tab"
+    aria-controls="notification"
+    aria-selected="false"
+  >
+    Notification
+  </button>
+</li>
+
+
+
+
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="single-input">
+        <label for="fName">First Name</label>
+        <input type="text" id="fName" placeholder="{{account.user.first_name}}" />
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="single-input">
+        <label for="lName">Last Name</label>
+        <input type="text" id="lName" placeholder="{{account.user.last_name}}" />
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="single-input">
+        <label for="email">Email</label>
+        <div
+          class="row input-status d-flex align-items-center"
+        >
+          <div class="col-6">
+            <input
+              type="text"
+              id="email"
+              placeholder="{{account.user.email}}"
+            />
+          </div>
+          <div class="col-6">
+            <span class="pending">
+              <img
+                src="{% static 'assets/images/icon/pending.png' %}"
+                alt="icon"
+              />
+              E-mail confirmation in pending
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="single-input">
+        <label for="phone">Phone</label>
+        <div
+          class="row input-status d-flex align-items-center"
+        >
+          <div class="col-6">
+            <input
+              type="text"
+              id="phone"
+              placeholder="{{account.user.kyc.mobile}}"
+            />
+          </div>
+          <div class="col-6">
+            <span class="confirm">
+              <img
+                src="{% static 'assets/images/icon/confirm.png' %}"
+                alt="icon"
+              />
+              Phone number confirm
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="single-input file">
+        <label>ID Confirmation documents</label>
+        <div
+          class="row input-status d-flex align-items-center"
+        >
+          <div class="col-6">
+            <div class="file-upload">
+              <div class="right-area">
+                <label class="file">
+                  <input type="file" />
+                  <span class="file-custom"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <span class="notconfirm">
+              <img
+                src="{% static 'assets/images/icon/not-confirm.png' %}"
+                alt="icon"
+              />
+              Person not confirmed
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="single-input">
+        <label for="address">Address</label>
+        <input
+          type="text"
+          id="address"
+          placeholder="2972 Westheimer Rd. Santa Ana, Illinois 85486"
+        />
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="btn-border">
+        <button class="cmn-btn">submit</button>
+      </div>
+    </div>
+  </div>
+</form>
+<!--form-end-->
+</div>
+<div
+class="tab-pane fade"
+id="security"
+role="tabpanel"
+aria-labelledby="security-tab"
+>
+<div
+  class="single-content authentication d-flex align-items-center justify-content-between"
+>
+  <div class="left">
+    <h5>Two Factor Authentication</h5>
+    <p>
+      Two-Factor Authentication (2FA) can be used to help
+      protect your account
+    </p>
+  </div>
+  <div class="right">
+    <button>Enable</button>
+  </div>
+</div>
+<div class="change-pass mb-40">
+  <div class="row">
+    <div class="col-sm-6">
+      <h5>Change Password</h5>
+      <p>
+        You can always change your password for security
+        reasons or reset your password in case you forgot it.
+      </p>
+      <a href="javascript:void(0)">Forgot password?</a>
+    </div>
+    <div class="col-sm-6">
+      <form action="#">
+        <div class="row justify-content-center">
+          <div class="col-md-12">
+            <div class="single-input">
+              <label for="current-password"
+                >Current password</label
+              >
+              <input
+                type="text"
+                id="current-password"
+                placeholder="Current password"
+              />
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="single-input">
+              <label for="new-password">New password</label>
+              <input
+                type="text"
+                id="new-password"
+                placeholder="New password"
+              />
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="single-input">
+              <label for="confirm-password"
+                >Confirm New password</label
+              >
+              <input
+                type="text"
+                id="confirm-password"
+                placeholder="Confirm New password"
+              />
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="btn-border w-100">
+              <button class="cmn-btn w-100">
+                Update password
+              </button>
+            </div>
+          </div>
+        </div>

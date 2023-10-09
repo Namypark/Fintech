@@ -1,10 +1,12 @@
-from sys import prefix
 from django.db import models
 import uuid
 from shortuuid.django_fields import ShortUUIDField
+from django_countries.fields import CountryField
 
 # from shortuuid.django_fields import ShortUUIDField
 from djmoney.models.fields import MoneyField
+from smart_selects.db_fields import ChainedForeignKey
+import account
 from userAuth.models import User
 
 # Create your models here.
@@ -23,6 +25,10 @@ MARITAL_STATUS = (
     ("single", "SINGLE"),
     ("married", "MARRIED"),
     ("divorced", "DIVORCED"),
+)
+IDENTITY_TYPE = (
+    ("ID", "IDENTITY CARD"),
+    ("LICENSE", "DRIVERS LICENSE"),
 )
 
 
@@ -77,3 +83,50 @@ class Account(models.Model):
 
     def full_name(self) -> str:
         return f"{self.user.first_name} {self.user.last_name}"
+
+
+class KYC(models.Model):
+    id = models.UUIDField(
+        primary_key=True, unique=True, editable=False, default=uuid.uuid4
+    )
+    user = models.OneToOneField(User, blank=False, on_delete=models.CASCADE)
+    account = models.OneToOneField(
+        Account, blank=True, null=True, on_delete=models.CASCADE
+    )
+    full_name = models.CharField(max_length=200)
+    image = models.ImageField(
+        upload_to="kyc_images",
+    )
+    marital_status = models.CharField(max_length=200, choices=MARITAL_STATUS)
+    gender = models.CharField(max_length=30, choices=GENDER)
+    identity_type = models.CharField(max_length=100, choices=IDENTITY_TYPE)
+    identity_image = models.ImageField(
+        upload_to="kyc_images/identity", null=True, blank=True
+    )
+
+    dob = models.DateTimeField(auto_now_add=False)
+    signature = models.ImageField(upload_to="kyc_signature")
+
+    # address
+    country = models.ForeignKey(
+        "cities_light.Country", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    city = ChainedForeignKey(
+        "cities_light.City",
+        chained_field="country",
+        chained_model_field="country",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    address = models.CharField(max_length=1000, blank=True, null=True)
+
+    # contact information
+    mobile = models.CharField(max_length=100)
+    date_created = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user}"
+
+    def full_address(self):
+        return f"{self.address}, {self.city}, {self.country}"

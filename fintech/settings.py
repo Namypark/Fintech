@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "account",
     "import_export",
     "djmoney",
+    "cities_light",
+    "smart_selects",
 ]
 
 MIDDLEWARE = [
