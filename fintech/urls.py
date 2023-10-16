@@ -27,7 +27,7 @@ urlpatterns = [
     path("chaining/", include("smart_selects.urls")),
     path("", include("core.urls")),
     path("auth/", include("userAuth.urls")),
-    path("account/", include("account.urls")),
+    path("user-account/", include("account.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

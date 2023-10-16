@@ -39,7 +39,7 @@
 
   <body>
     <!-- start preloader -->
-    <div class="preloader" id="preloader"></div>
+    {% comment %} <div class="preloader" id="preloader"></div> {% endcomment %}
     <!-- end preloader -->
 
     <!-- Scroll To Top Start-->
@@ -222,7 +222,7 @@
                   <a href="{% url "loginUser" %}" class="login">Login</a>
                   <a href="{% url "register" %}" class="cmn-btn"
                     >Sign Up
-                    <i class="fas fas-caret-right"></i>
+                    <i class=""></i>
                   </a>
                 {% endif %}
                 </div>
@@ -243,7 +243,6 @@
       </div>
     </header>
     <!-- header-section end -->
-    {% include "core/messages.html" %}
     {% block content %} {% endblock content %}
 
     <!--==================================================================-->

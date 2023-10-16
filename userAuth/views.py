@@ -35,11 +35,12 @@ def loginUser(
         auth = authenticate(request, email=email, password=password)
         if auth is not None:
             login(request, auth)
-            messages.success(request, f"welcome back {user.first_name}")
+            messages.success(request, f"welcome back {user}")
+            print(user.first_name)
             return redirect("home")
         else:
             messages.warning(request, "Please check your email address or password")
-            return redirect("login")
+            return redirect("loginUser")
 
     return render(request, "userAuth/login.html")
 

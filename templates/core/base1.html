@@ -36,11 +36,12 @@
       href="{% static 'assets1/css/plugin/animate.css' %}"
     />
     <link rel="stylesheet" href="{% static 'assets1/css/style.css' %}" />
+   
   </head>
 
   <body>
     <!-- start preloader -->
-    <div class="preloader" id="preloader"></div>
+    {% comment %} <div class="preloader" id="preloader"></div> {% endcomment %}
     <!-- end preloader -->
 
     <!-- Scroll To Top Start-->
@@ -181,10 +182,12 @@
             <div class="single-item user-area">
               <div class="profile-area d-flex align-items-center">
                 <span class="user-profile">
+
                   <img
-                    src="{% static 'assets1/images/avatar.png' %}"
-                    alt="User"
-                  />
+                  src={{kyc.image.url}}
+                  alt="User"
+                  style="width:50px; height:50px; border-radius:50%;"
+                />
                 </span>
                 <i class="fa-solid fa-sort-down"></i>
               </div>
@@ -192,15 +195,16 @@
                 <div class="head-area d-flex align-items-center">
                   <div class="profile-img">
                     <img
-                      src="{% static 'assets1/images/avatar-2.png' %}"
+                      src={{kyc.image.url}}
                       alt="User"
+                      style="width:50px; height:50px; border-radius:50%;"
                     />
                   </div>
                   <div class="profile-head">
                     <a href="javascript:void(0)">
-                      <h5>Kevin Martin</h5>
+                      <h5>{{kyc.full_name|title}}</h5>
                     </a>
-                    <p class="wallet-id">Wallet ID: 6264849965</p>
+                    <p class="wallet-id">Account ID: {{account.account_number|title}}</p>
                   </div>
                 </div>
                 <ul>
@@ -210,7 +214,7 @@
                     >
                   </li>
                   <li>
-                    <a href="javascript:void(0)"
+                    <a href="{% url "logoutUser" %}"
                       ><i class="fas fa-sign-out"></i>Logout</a
                     >
                   </li>
@@ -230,7 +234,7 @@
           </div>
           <ul>
             <li>
-              <a href="{% url "dashboard" %}">
+              <a href="{% url "account" %}">
                 <img
                   src="{% static 'assets1/images/icon/dashboard.png' %}"
                   alt="Dashboard"
@@ -355,6 +359,16 @@
         </div>
       </div>
     </div>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close" style="position: absolute; top: 10px; right: 10px">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endfor %}
+  {% endif %}
   </div>
   
 </header>
@@ -364,11 +378,14 @@
     {% block content %}{% endblock content %}
 
     <!--==================================================================-->
+    {% comment %} <script src="{% static 'smart-selects/admin/js/chainedfk.js' %}"></script>
+    <script src="{% static 'smart-selects/admin/js/bindfields.js' %}"></script> {% endcomment %}
     <script src="{% static 'assets1/js/jquery.min.js' %}"></script>
     <script src="{% static 'assets1/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'assets1/js/jquery-ui.js' %}"></script>
     <script src="{% static 'assets1/js/plugin/apexcharts.js' %}"></script>
-    <script src="{% static 'assets1/js/plugin/jquery.nice-select.min.js' %}"></script>
+    <!-- THIS JQUERY IMPORT WAS AFFECTING THE SMART SELECT FOR CITY-->
+    {% comment %} <script src="{% static 'assets1/js/plugin/jquery.nice-select.min.js' %}"></script> {% endcomment %}
     <script src="{% static 'assets1/js/plugin/waypoint.min.js' %}"></script>
     <script src="{% static 'assets1/js/plugin/wow.min.js' %}"></script>
     <script src="{% static 'assets1/js/plugin/plugin.js' %}"></script>
