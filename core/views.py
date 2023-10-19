@@ -9,10 +9,5 @@ def index(request):
     return render(request, "core/index.html")
 
 
-@login_required(login_url="loginUser")
-def contact(request):
-    return render(request, "core/contact.html")
-
-
 def home(request):
     return render(request, "core/home.html")

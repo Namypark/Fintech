@@ -61,13 +61,13 @@
           <div class="sidebar-icon">
             <img src="{% static 'assets1/images/icon/menu.png' %}" alt="icon" />
           </div>
-          <form action="#" class="flex-fill">
+          <form class="flex-fill" method="GET" action="{% url 'search_account' %}">
             <div class="form-group d-flex align-items-center">
               <img
                 src="{% static 'assets1/images/icon/search.png' %}"
                 alt="icon"
               />
-              <input type="text" placeholder="Type to search..." />
+              <input type="search" name="search_query" placeholder="Type to search..." />
             </div>
           </form>
           <div class="dashboard-nav">
@@ -197,20 +197,23 @@
                     <img
                       src={{kyc.image.url}}
                       alt="User"
-                      style="width:50px; height:50px; border-radius:50%;"
+                      style="width:60px; height:60px; border-radius:50%; object-fit: cover;"
                     />
                   </div>
                   <div class="profile-head">
-                    <a href="javascript:void(0)">
                       <h5>{{kyc.full_name|title}}</h5>
                     </a>
-                    <p class="wallet-id">Account ID: {{account.account_number|title}}</p>
+                    <p class="wallet-id" >Account ID: {{account.account_number|title}}</p>
                   </div>
                 </div>
-                <ul>
+                <ul> 
                   <li class="border-area">
-                    <a href="account.html"
-                      ><i class="fas fa-cog"></i>Settings</a
+                  <a href - "{% url "admin:index" %}"
+                    ><i class="fas fa-user"></i>Admin</a
+                  >
+                </li>
+                  <li class="border-area">
+                    <i class="fas fa-cog"></i>Settings</a
                     >
                   </li>
                   <li>
@@ -234,7 +237,7 @@
           </div>
           <ul>
             <li>
-              <a href="{% url "account" %}">
+              <a href="{% url "account" account.account_number %}">
                 <img
                   src="{% static 'assets1/images/icon/dashboard.png' %}"
                   alt="Dashboard"
@@ -243,7 +246,7 @@
               </a>
             </li>
             <li>
-              <a href="transactions.html">
+              <a href="{% url "search_account" %}">
                 <img
                   src="{% static 'assets1/images/icon/transactions.png' %}"
                   alt="Transactions"
@@ -317,7 +320,8 @@
           </ul>
           <ul class="bottom-item">
             <li class="active">
-              <a href="account.html">
+              <a href="{% url "account" pk=account.account_number %}">
+
                 <img
                   src="{% static 'assets1/images/icon/account.png' %}"
                   alt="Account"

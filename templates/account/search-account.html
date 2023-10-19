@@ -1,0 +1,100 @@
+{% extends "core/base1.html" %} {% load static %} {% block content %}
+
+<!-- Dashboard Section start -->
+<section class="dashboard-section body-collapse pay step">
+  <div class="overlay pt-120">
+    <div class="container-fruid">
+      <div class="main-content">
+        <div
+          class="head-area d-flex align-items-center justify-content-between"
+        >
+          <h4>Make a Payment</h4>
+          <div class="icon-area">
+            <img
+              src="{% static 'assets1/images/icon/support.png' %}"
+              alt="icon"
+            />
+          </div>
+        </div>
+        <div class="choose-recipient">
+          <div class="step-area">
+            <span class="mdr">Step 1 of 3</span>
+            <h5>Choose Recipient</h5>
+          </div>
+          <div class="recipient-list">
+            <button class="my-recipients active">
+              <span class="icon-area">
+                <i class="icon-f-user"></i>
+              </span>
+              <span>My Recipients</span>
+            </button>
+            <button data-bs-toggle="modal" data-bs-target="#recipientsMod">
+              <span class="icon-area">
+                <i class="icon-e-plus"></i>
+              </span>
+              <span>New Recipients</span>
+            </button>
+            <button>
+              <span class="icon-area">
+                <i class="icon-f-user"></i>
+              </span>
+              <span>Send to myself</span>
+            </button>
+          </div>
+          <p class="recipients-item">{{all_accounts.count}}</p>
+        </div>
+        <form action="{% url "search_account" %}" class="flex-fill" method="POST">
+          {% csrf_token %}
+          <div class="form-group d-flex align-items-center">
+            <img
+              src="{% static 'assets1/images/icon/search.png' %}"
+              alt="icon"
+            />
+            <input type="search" name="search_query" placeholder="Enter Account number or ID" />
+            <button type='submit'><i class="fas fa-search " aria-hidden='true'></i></button>
+          </div>
+        </form>
+        <!-- user -start-->
+        <div class="user-select">
+          {% if query %}
+          {% for accounts in all_accounts  %}
+          <div class="single-user">
+            <div class="left d-flex align-items-center">
+              <div class="img-area">
+                <img
+                  src='{{ accounts.kyc.image.url}}'
+                  alt="image"
+                  style="width: 60px; height: 60px; border-radius: 50%;"
+                />
+              </div>
+              <div class="text-area">
+                <p><b>{{accounts.kyc.full_name}}</b></p>
+                <span class='mdr'><b>{{accounts.account_number}}</b></span>
+                
+              </div>
+            </div>
+            <div class="right">
+              <a href="javascript:void(0)">Choose</a>
+            </div>
+          </div>
+          {% empty %}
+          <div>
+            <h4>No Account</h4>
+          </div>
+          {% endfor %}
+          {% endif %}
+          
+          
+        </div>
+        <!--User-end-->
+        <div class="footer-area mt-40">
+          <a href="pay.html">Previous Step</a>
+          <a href="pay-step-2.html" class="active">Next</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Dashboard Section end -->
+
+{% endblock %}

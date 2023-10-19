@@ -7,6 +7,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
+from account.models import Account
 
 from userAuth.models import User
 
@@ -21,7 +22,8 @@ def loginUser(
     request,
 ) -> HttpResponseRedirect | HttpResponsePermanentRedirect | HttpResponse:
     if request.user.is_authenticated:
-        return redirect("home")
+        messages.warning(request, f"{request.user}, you are already logged in.")
+        return redirect("account")
     elif request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
@@ -35,9 +37,10 @@ def loginUser(
         auth = authenticate(request, email=email, password=password)
         if auth is not None:
             login(request, auth)
+            account = Account.objects.get(user=request.user)
+            pk = account.account_number
             messages.success(request, f"welcome back {user}")
-            print(user.first_name)
-            return redirect("home")
+            return redirect("account", pk)
         else:
             messages.warning(request, "Please check your email address or password")
             return redirect("loginUser")
@@ -77,9 +80,8 @@ def register(
                 return redirect("loginUser")
 
         else:
-            print("3")
             form = UserRegistrationForm()
-        context: dict[str, UserRegistrationForm] = {
+        context = {
             "form": form,
         }
         return render(request, "userAuth/register.html", context)

@@ -21,26 +21,3 @@ def create_save_account(sender, instance, created, **kwargs):
         instance.account.save()
         print(instance)
         print("Account saved successfully")
-
-
-# # @receiver(post_delete, sender=User)
-# # def delete_user(sender, instance, **kwargs):
-# #     """
-# #     Delete an account from the database and alert the user.
-# #     """
-# #     # Check if the deletion was initiated by an admin user
-# #     if instance != instance.account.user:
-# #         print(instance)
-# #         # Get the associated account
-# #         account = instance.account if hasattr(instance, "account") else None
-
-# #         if account:
-# #             # Delete the account from the database
-# #             account.delete()
-
-# #             # Alert the user
-# #             if instance == instance.account.user:
-# #                 print(instance)
-# #                 messages.info(instance, "Your account has been deleted.")
-# #             else:
-# #                 messages.info(instance, "An admin user has deleted your account.")

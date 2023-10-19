@@ -1,8 +1,10 @@
 from django.shortcuts import redirect, render
+
 from account.models import KYC, Account
 from account.forms import KYCForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 
 # Create your views here.
@@ -18,6 +20,10 @@ def kyc_registration(request):
 
     except KYC.DoesNotExist:
         kyc = None
+
+    if account.kyc_submitted == True:
+        messages.success(request, "KYC submitted")
+        return redirect("account")
 
     if request.method == "POST":
         form = KYCForm(request.POST, request.FILES, instance=kyc)
@@ -41,9 +47,10 @@ def kyc_registration(request):
             new_form.user = user
             new_form.account = account
             new_form.save()
+            account.kyc_submitted = True
+
             messages.success(request, "KYC form submitted successfully.")
             messages.success(request, "KYC form is being reviewed.")
-
             return redirect("home")
         else:
             print("form is invalid")
@@ -58,7 +65,7 @@ def kyc_registration(request):
 
 
 @login_required(login_url="loginUser")
-def account_view(request):
+def account_view(request, pk):
     user = request.user
     account = Account.objects.get(user=user)
 
@@ -75,8 +82,34 @@ def account_view(request):
     return render(request, "account/account.html", context)
 
 
-def test_view(request):
-    form = KYCForm()
+@login_required(login_url="loginUser")
+def search_account(request):
+    account = Account.objects.get(user=request.user)
+    all_accounts = Account.objects.all()
+    query = request.POST.get("search_query")
 
-    context = {"form": form}
-    return render(request, "account/test.html", context)
+    """
+    if the account exists 
+    Search the account for the query requested 
+    """
+    if query:
+        all_accounts = all_accounts.filter(
+            Q(account_number__icontains=query, status="active")
+            | Q(account_id__icontains=query, status="active")
+        ).distinct()
+        if all_accounts.exists() == True:
+            messages.success(request, "Accounts found")
+        else:
+            all_accounts = all_accounts.filter(status="active")
+
+    kyc = KYC.objects.get(
+        account=account,
+    )
+
+    context = {
+        "account": account,
+        "kyc": kyc,
+        "all_accounts": all_accounts,
+        "query": query,
+    }
+    return render(request, "account/search-account.html", context)
