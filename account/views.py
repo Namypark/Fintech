@@ -113,3 +113,32 @@ def search_account(request):
         "query": query,
     }
     return render(request, "account/search-account.html", context)
+
+
+def transactions(request):
+    account = Account.objects.get(user=request.user)
+
+    context = {"account": account}
+    return render(request, "account/transactions.html", context)
+
+
+def transfer_amount(request, account_number):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    available_amount = account.account_balance.amount
+    print(available_amount)
+    try:
+        transfer_account = Account.objects.get(account_number=account_number)
+
+    except Account.DoesNotExist:
+        transfer_account = None
+        messages.warning(request, "Account does not exist")
+
+        return redirect("search_account")
+    # account = Account.objects.get(account_number=account_number)
+    context = {
+        "account": account,
+        "kyc": kyc,
+        "transfer_account": transfer_account,
+    }
+    return render(request, "account/transfer_amount.html", context)

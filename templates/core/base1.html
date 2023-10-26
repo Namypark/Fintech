@@ -237,7 +237,7 @@
           </div>
           <ul>
             <li>
-              <a href="{% url "account" account.account_number %}">
+              <a href="{% url 'account' account.account_number %}">
                 <img
                   src="{% static 'assets1/images/icon/dashboard.png' %}"
                   alt="Dashboard"
@@ -246,7 +246,7 @@
               </a>
             </li>
             <li>
-              <a href="{% url "search_account" %}">
+              <a href="{% url "transactions" %}">
                 <img
                   src="{% static 'assets1/images/icon/transactions.png' %}"
                   alt="Transactions"
@@ -255,7 +255,7 @@
               </a>
             </li>
             <li>
-              <a href="pay.html">
+              <a href="{% url "transfer_amount" account.account_number %}">
                 <img
                   src="{% static 'assets1/images/icon/pay.png' %}"
                   alt="Pay"
@@ -320,7 +320,7 @@
           </ul>
           <ul class="bottom-item">
             <li class="active">
-              <a href="{% url "account" pk=account.account_number %}">
+              {% comment %} <a href="{% url "account" account.account_number %}"> {% endcomment %}
 
                 <img
                   src="{% static 'assets1/images/icon/account.png' %}"
