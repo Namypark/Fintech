@@ -11,4 +11,9 @@ urlpatterns = [
         name="transfer_amount",
     ),
     path("transactions/", views.transactions, name="transactions"),
+    path(
+        "amount-transfer-process/<int:account_number>",
+        views.amount_transfer_process,
+        name="amount_transfer_process",
+    ),
 ]

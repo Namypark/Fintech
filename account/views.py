@@ -1,7 +1,8 @@
+from django.dispatch import receiver
 from django.shortcuts import redirect, render
 
-from account.models import KYC, Account
-from account.forms import KYCForm
+from account.models import KYC, Account, Transaction
+from account.forms import KYCForm, TransactionForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -115,6 +116,7 @@ def search_account(request):
     return render(request, "account/search-account.html", context)
 
 
+@login_required(login_url="loginUser")
 def transactions(request):
     account = Account.objects.get(user=request.user)
 
@@ -122,6 +124,7 @@ def transactions(request):
     return render(request, "account/transactions.html", context)
 
 
+@login_required(login_url="loginUser")
 def transfer_amount(request, account_number):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
@@ -135,10 +138,50 @@ def transfer_amount(request, account_number):
         messages.warning(request, "Account does not exist")
 
         return redirect("search_account")
-    # account = Account.objects.get(account_number=account_number)
     context = {
         "account": account,
         "kyc": kyc,
         "transfer_account": transfer_account,
     }
     return render(request, "account/transfer_amount.html", context)
+
+
+@login_required(login_url="loginUser")
+def amount_transfer_process(request, account_number):
+    print(account_number)
+    account = request.user.account
+    """
+    getting the sender and receiver account information
+    """
+    transfer_account = Account.objects.get(account_number=account_number)
+    print(transfer_account)
+
+    if request.method == "POST":
+        amount = int(request.POST.get("new-value"))
+        description = request.POST.get("description")
+
+        if (
+            account.account_balance.amount > 0
+            and account.account_balance.amount > amount
+        ):
+            print("processing transfer..")
+            new_transaction = Transaction.objects.create(
+                user=request.user,
+                amount=amount,
+                transaction_description=description,
+                receiver=transfer_account,
+                sender=account,
+                transaction_type="transfer",
+                status="processing",
+            )
+            new_transaction.save()
+            transaction_id = new_transaction.transaction_id
+            context = {"account": account, "transfer_account": transfer_account}
+            messages.success(request, "processing payment")
+            return redirect("transactions")
+        else:
+            messages.warning(request, "Insufficient funds")
+            return redirect("transfer-amount", transfer_account.account_number)
+    else:
+        messages.warning(request, "Something went wrong")
+        return redirect("transfer-amount", transfer_account.account_number)

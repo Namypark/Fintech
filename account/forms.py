@@ -8,7 +8,7 @@ from django.forms import (
     TextInput,
     Widget,
 )
-from .models import KYC
+from .models import KYC, Transaction
 
 
 class DateInput(DateInput):
@@ -60,3 +60,18 @@ class KYCForm(ModelForm):
 
 
 # data-value="16318" data-auto_choose="false"data-chainfield="country" data-url="/chaining/filter/cities_light/City/country/account/KYC/city" data-value="16318" data-auto_choose="false"
+
+
+class TransactionForm(ModelForm):
+    class Meta:
+        model = Transaction
+        fields = [
+            "user",
+            "transaction_id",
+            "amount",
+            "receiver",
+            "sender",
+            "status",
+            "transaction_fee",
+            "reference_number",
+        ]

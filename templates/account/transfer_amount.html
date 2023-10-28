@@ -46,16 +46,22 @@
             </div>
           </div>
         </div>
-        <form action="#">
+        <form
+          action="{% url 'amount_transfer_process' transfer_account.account_number %}"
+          method="POST"
+        >
+          {% csrf_token %}
           <div class="send-banance">
             <span class="mdr">You Send</span>
             <div class="input-area">
               <input
+                name="new-value"
                 id="new-value"
                 class="xxlr"
                 placeholder="400.00"
                 type="number"
                 onKeyUp="totalBalance()"
+                inputmode="numeric"
               />
               <select>
                 <option value="1">USD</option>
@@ -68,6 +74,14 @@
                 ><b>{{account.account_balance}}</b></span
               >
             </p>
+            <br />
+            <input
+              name="description"
+              id="description"
+              class="xxlr"
+              placeholder="description"
+              type="text"
+            />
           </div>
           <ul class="total-fees">
             <li>Total Fees</li>
@@ -78,66 +92,90 @@
               <h5>Total To Pay</h5>
             </li>
             <li>
-              <h5>xx USD</h5>
+              <h5 id="total-amount">$0.00</h5>
             </li>
           </ul>
           <div class="footer-area mt-40">
             <a href="pay-step-1.html">Previous Step</a>
-            <a href="pay-step-3.html" class="active">Next</a>
+            <button
+              type="submit"
+              class="active"
+              style="
+                padding: 10px 30px;
+                border-radius: 20%;
+                margin: 0px 10px;
+                background-color: #fff;
+                border: 1px solid rgb(221, 232, 255);
+              "
+              onmouseover="this.style.backgroundColor='rgb(87, 50, 189)';"
+              onmouseout="this.style.backgroundColor='rgb(247, 249, 253)';"
+            >
+              Next
+            </button>
           </div>
         </form>
       </div>
     </div>
   </div>
   <script>
-    const integerInput = document.getElementById("new-value");
+      const integerInput = document.getElementById("new-value");
 
-    // Attach an event listener so non integer cant be typed
-    integerInput.addEventListener("input", function (event) {
-      const inputValue = event.target.value;
-      const sanitizedValue = inputValue.replace(/\D/g, "");
-      console.log(typeof sanitizedValue);
-      console.log(typeof inputValue);
-      console.log(inputValue !== sanitizedValue);
-      //console.log(filteredValue);
-      event.target.value = sanitizedValue;
-    });
-    integerInput.addEventListener("paste", function (event) {
-      // Prevent the default paste action
-      event.preventDefault();
+      // Attach an event listener so non integer cant be typed
+      integerInput.addEventListener("input", function (event) {
+        const inputValue = event.target.value;
+         // Replace non-integer characters and allow a single decimal point
+        const sanitizedValue = inputValue.replace(/[^\d.]/g, "");
 
-      // Get the text from the clipboard
-      const clipboardData = event.clipboardData || window.clipboardData;
-      const pastedText = clipboardData.getData("text");
+    // Check if there are multiple decimal points and correct it
+        if (sanitizedValue.split(".").length > 2) {
+          const parts = sanitizedValue.split(".");
+          sanitizedValue = parts[0] + "." + parts.slice(1).join("");
+        }
 
-      // Filter out non-integer characters
-      const filteredText = pastedText.replace(/\D/g, "");
+    event.target.value = sanitizedValue;
+      });
+      integerInput.addEventListener("paste", function (event) {
+        // Prevent the default paste action
+        event.preventDefault();
 
-      // Insert the filtered text into the input field
-      document.execCommand("insertText", false, filteredText);
-    });
+        // Get the text from the clipboard
+        const clipboardData = event.clipboardData || window.clipboardData;
+        const pastedText = clipboardData.getData("text");
 
-    function totalBalance() {
-      let availableAmount = parseFloat(
-        "{{account.account_balance.amount}}"
-      );
-      let transferAmount = document.getElementById("new-value").value;
-      newBalance = availableAmount - transferAmount;
-      newBalanceElement = document.getElementById("new-balance");
-      if (transferAmount > availableAmount) {
-        newBalanceElement.textContent = "insufficient funds";
-        newBalanceElement.style.color = "red";
-        alert(`you can only send ${{account.account_balance.amount}}`);
-      } else {
-        newBalanceElement.textContent = `New Balance: $${newBalance
-          .toString()
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-        newBalanceElement.style.color = "black";
+        // Filter out non-integer characters
+        const filteredText = pastedText.replace(/\D/g, "");
+
+        // Insert the filtered text into the input field
+        document.execCommand("insertText", false, filteredText);
+      });
+
+      function totalBalance() {
+        let availableAmount = parseFloat(
+          "{{account.account_balance.amount}}"
+        );
+        let totalAmount = document.getElementById('total-amount')
+        let transferAmount = document.getElementById("new-value").value;
+        newBalance = availableAmount - transferAmount;
+        newBalanceElement = document.getElementById("new-balance");
+        if (transferAmount > availableAmount) {
+          newBalanceElement.textContent = "insufficient funds";
+          newBalanceElement.style.color = "red";
+          alert(`you can only send ${{account.account_balance.amount}}`);
+        } else {
+          newBalanceElement.textContent = `New Balance: $${newBalance
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+          newBalanceElement.style.color = "black";
+          //
+          totalAmount.textContent = `$${transferAmount
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+          totalAmount.style.color = "black";
+        }
+
+        // console.log(transferAmount);
+        // console.log(newBalance);
       }
-
-      // console.log(transferAmount);
-      // console.log(newBalance);
-    }
   </script>
 </section>
 <!-- Dashboard Section end -->

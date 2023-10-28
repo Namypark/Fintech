@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Account, KYC
+from .models import Account, KYC, Transaction
 from import_export.admin import ImportExportModelAdmin
 
 # Register your models here.
@@ -18,3 +18,23 @@ class KYCAdminModel(ImportExportModelAdmin):
     model = KYC
     search_fields = ["full_name"]
     list_display = ["user", "full_name", "gender", "country"]
+
+
+@admin.register(Transaction)
+class TransactionAdminModel(ImportExportModelAdmin):
+    model = Transaction
+    search_fields = [
+        "transaction_id",
+        "reference_number",
+    ]
+    list_display = [
+        "transaction_id",
+        "amount",
+        "sender",
+        "receiver",
+        "status",
+        "transaction_type",
+        "transaction_description",
+        "transaction_time",
+        "transaction_fee",
+    ]

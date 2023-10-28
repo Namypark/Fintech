@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+from shortuuid import ShortUUID
 from shortuuid.django_fields import ShortUUIDField
 from django_countries.fields import CountryField
 
@@ -29,6 +30,22 @@ MARITAL_STATUS = (
 IDENTITY_TYPE = (
     ("ID", "IDENTITY CARD"),
     ("LICENSE", "DRIVERS LICENSE"),
+)
+
+TRANSACTION_TYPE = (
+    ("transfer", "TRANSFER"),
+    ("received", "RECEIVED"),
+    ("withdraw", "WITHDRAW"),
+    ("refund", "REFUND"),
+    ("request", "REQUEST"),
+    ("none", "NONE"),
+)
+
+TRANSACTION_STATUS = (
+    ("failed", "FAILED"),
+    ("completed", "COMPLETED"),
+    ("pending", "PENDING"),
+    ("processing", "PROCESSING"),
 )
 
 
@@ -130,3 +147,40 @@ class KYC(models.Model):
 
     def full_address(self):
         return f"{self.address}, {self.city}, {self.country}"
+
+
+class Transaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    transaction_id = ShortUUIDField(
+        unique=True, length=15, max_length=20, prefix="TRN", alphabet="1234567890"
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    receiver = models.ForeignKey(
+        Account, on_delete=models.SET_NULL, null=True, related_name="receiver_account"
+    )
+    sender = models.ForeignKey(
+        Account, on_delete=models.SET_NULL, null=True, related_name="sender_account"
+    )
+    status = models.CharField(
+        choices=TRANSACTION_STATUS, default="pending", max_length=12
+    )
+    transaction_type = models.CharField(
+        choices=TRANSACTION_TYPE, default="none", max_length=12
+    )
+    transaction_description = models.CharField(
+        max_length=1000, default="payment", blank=True, null=True
+    )
+    reference_number = ShortUUIDField(
+        max_length=20, unique=True, length=15, alphabet="1234567890"
+    )
+    transaction_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    transaction_time = models.DateTimeField(auto_now_add=True)
+    transaction_time_updated = models.DateTimeField(
+        auto_now=False, blank=True, null=True
+    )
+
+    def __str__(self):
+        try:
+            return f"{self.sender.user}"
+        except:
+            return f"Transaction id: {self.transaction_id}"
