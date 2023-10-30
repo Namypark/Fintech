@@ -1,11 +1,15 @@
+import time
 from django.dispatch import receiver
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 
 from account.models import KYC, Account, Transaction
-from account.forms import KYCForm, TransactionForm
+from account.forms import KYCForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.safestring import mark_safe
 
 
 # Create your views here.
@@ -66,7 +70,7 @@ def kyc_registration(request):
 
 
 @login_required(login_url="loginUser")
-def account_view(request, pk):
+def account_view(request, account_number):
     user = request.user
     account = Account.objects.get(user=user)
 
@@ -88,7 +92,7 @@ def search_account(request):
     account = Account.objects.get(user=request.user)
     all_accounts = Account.objects.all()
     query = request.POST.get("search_query")
-
+    previous_url = request.META.get("HTTP_REFERER", None)
     """
     if the account exists 
     Search the account for the query requested 
@@ -112,6 +116,7 @@ def search_account(request):
         "kyc": kyc,
         "all_accounts": all_accounts,
         "query": query,
+        "previous_url": previous_url,
     }
     return render(request, "account/search-account.html", context)
 
@@ -129,7 +134,8 @@ def transfer_amount(request, account_number):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
     available_amount = account.account_balance.amount
-    print(available_amount)
+    previous_url = request.META.get("HTTP_REFERER", None)
+
     try:
         transfer_account = Account.objects.get(account_number=account_number)
 
@@ -142,6 +148,7 @@ def transfer_amount(request, account_number):
         "account": account,
         "kyc": kyc,
         "transfer_account": transfer_account,
+        "previous_url": previous_url,
     }
     return render(request, "account/transfer_amount.html", context)
 
@@ -157,7 +164,7 @@ def amount_transfer_process(request, account_number):
     print(transfer_account)
 
     if request.method == "POST":
-        amount = int(request.POST.get("new-value"))
+        amount = float(request.POST.get("new-value"))
         description = request.POST.get("description")
 
         if (
@@ -175,13 +182,93 @@ def amount_transfer_process(request, account_number):
                 status="processing",
             )
             new_transaction.save()
-            transaction_id = new_transaction.transaction_id
+
             context = {"account": account, "transfer_account": transfer_account}
             messages.success(request, "processing payment")
-            return redirect("transactions")
+            return redirect(
+                "transaction_confirmation",
+                account_number,
+                new_transaction.transaction_id,
+            )
         else:
             messages.warning(request, "Insufficient funds")
-            return redirect("transfer-amount", transfer_account.account_number)
+            return redirect("transfer_amount", account_number)
     else:
         messages.warning(request, "Something went wrong")
-        return redirect("transfer-amount", transfer_account.account_number)
+        return redirect("transfer_amount", transfer_account.account_number)
+
+
+@login_required(login_url="loginUser")
+def transaction_confirmation(request, account_number, transaction_id):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    # print(account)
+    transferred_account = Account.objects.get(account_number=account_number)
+    # print(transferred_account)
+    try:
+        transaction = Transaction.objects.get(transaction_id=transaction_id)
+        # print(f"Transaction.objects.get(transaction_id={transaction_id})")
+        # print("<-------------------------------->")
+        # print(f"{Transaction.objects.get(transaction_id=transaction_id)}")
+
+        # transaction_info = Transaction.objects.get(transaction_id=transaction_id)
+    except ObjectDoesNotExist:
+        messages.warning(request, "Transaction not found")
+        redirect("search_account")
+    context = {
+        "account": account,
+        "transferred_account": transferred_account,
+        "kyc": kyc,
+        "transaction": transaction,
+    }
+    return render(request, "account/payment-confirmation.html", context)
+
+
+def transaction_process(request, account_number, transaction_id):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    # print(account)
+    transferred_account = Account.objects.get(account_number=account_number)
+    transaction = Transaction.objects.get(transaction_id=transaction_id)
+    pin = ""
+    completed = False
+    if request.method == "POST":
+        pin_ = request.POST.get("pin1")
+
+        for i in range(1, 5):
+            pin_ = request.POST.get(f"pin{i}")
+            pin += pin_
+
+        if pin == account.pin:
+            print(transaction.amount.amount)
+            transaction.status = "completed"
+            transaction.save()
+
+            # deduction from senders account
+            account.account_balance -= transaction.amount
+            print(account.account_balance)
+            account.save()
+
+            # allocating the money to the receiver
+
+            transferred_account.account_balance += transaction.amount
+            transferred_account.save()
+            messages.success(request, "Transaction successfully")
+            return HttpResponse(status=204)
+            # return redirect("transaction_confirmation", account_number, transaction_id)
+
+        else:
+            messages.success(request, "Pin is not correct please retry")
+            return redirect("transaction_confirmation", account_number, transaction_id)
+    else:
+        messages.success(request, "Pin is not correct please retry")
+        return redirect("transaction_confirmation", account_number, transaction_id)
+
+
+def successful_transaction_confirmation(request, transaction_id):
+    account = request.user.account
+    kyc = account.kyc
+    transaction = Transaction.objects.get(transaction_id=transaction_id)
+
+    context = {"account": account, "kyc": kyc, "transaction": transaction}
+    return render(request, "account/success.html", context)

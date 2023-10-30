@@ -3,7 +3,7 @@ from django.urls import path
 
 urlpatterns = [
     path("kyc-registration/", views.kyc_registration, name="kyc-registration"),
-    path("account/<int:pk>", views.account_view, name="account"),
+    path("account/<account_number>", views.account_view, name="account"),
     path("search-account/", views.search_account, name="search_account"),
     path(
         "transfer_amount/<int:account_number>",
@@ -15,5 +15,20 @@ urlpatterns = [
         "amount-transfer-process/<int:account_number>",
         views.amount_transfer_process,
         name="amount_transfer_process",
+    ),
+    path(
+        "transfer-confirmation/<int:account_number>/<str:transaction_id>",
+        views.transaction_confirmation,
+        name="transaction_confirmation",
+    ),
+    path(
+        "transaction_process/<int:account_number>/<str:transaction_id>",
+        views.transaction_process,
+        name="transaction_process",
+    ),
+    path(
+        "successful_transaction_confirmation/<str:transaction_id>",
+        views.successful_transaction_confirmation,
+        name="transaction_confirmation",
     ),
 ]

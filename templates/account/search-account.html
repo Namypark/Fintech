@@ -88,8 +88,18 @@
         </div>
         <!--User-end-->
         <div class="footer-area mt-40">
-          <a href="pay.html">Previous Step</a>
-          <a href="pay-step-2.html" class="active">Next</a>
+          {% if previous_url %}
+          <a href="{{previous_url}}">Previous Step</a>
+          {% endif %}
+          {% if query %}
+          {% for accounts in all_accounts %}
+          <a href="{% url "transfer_amount" accounts.account_number %}" class="active">Next</a>
+
+          {% endfor %}
+          {% else %}
+          <a href="#" class="active" style="pointer-events:none">Next</a>
+
+          {% endif %}
         </div>
       </div>
     </div>

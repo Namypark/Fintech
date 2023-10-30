@@ -154,7 +154,11 @@ class Transaction(models.Model):
     transaction_id = ShortUUIDField(
         unique=True, length=15, max_length=20, prefix="TRN", alphabet="1234567890"
     )
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    amount = MoneyField(
+        max_digits=14,
+        decimal_places=2,
+        default_currency="USD",
+    )
     receiver = models.ForeignKey(
         Account, on_delete=models.SET_NULL, null=True, related_name="receiver_account"
     )
@@ -181,6 +185,6 @@ class Transaction(models.Model):
 
     def __str__(self):
         try:
-            return f"{self.sender.user}"
+            return f"{self.sender.transaction.transaction_id}"
         except:
-            return f"Transaction id: {self.transaction_id}"
+            return f"{self.transaction_id}"
