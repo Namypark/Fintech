@@ -23,10 +23,7 @@ class KYCAdminModel(ImportExportModelAdmin):
 @admin.register(Transaction)
 class TransactionAdminModel(ImportExportModelAdmin):
     model = Transaction
-    search_fields = [
-        "transaction_id",
-        "reference_number",
-    ]
+    search_fields = ["transaction_id", "reference_number", "transaction_time"]
     list_display = [
         "transaction_id",
         "amount",
@@ -38,3 +35,7 @@ class TransactionAdminModel(ImportExportModelAdmin):
         "transaction_time",
         "transaction_fee",
     ]
+    list_filter = [
+        ("transaction_time", admin.DateFieldListFilter),
+    ]
+    date_hierarchy = "transaction_time"

@@ -237,7 +237,7 @@
           </div>
           <ul>
             <li>
-              <a href="{% url 'account' account.account_number %}">
+              <a href="{% url 'dashboard' %}">
                 <img
                   src="{% static 'assets1/images/icon/dashboard.png' %}"
                   alt="Dashboard"
@@ -255,13 +255,15 @@
               </a>
             </li>
             <li>
-              <a href="{% url "transfer_amount" account.account_number %}">
+              <a href="{% url "transfer_amount" request.user.account.account_number %}">
                 <img
                   src="{% static 'assets1/images/icon/pay.png' %}"
                   alt="Pay"
                 />
                 <span>Pay</span>
               </a>
+              
+                
             </li>
             <li>
               <a href="receive-step-1.html">
@@ -320,7 +322,7 @@
           </ul>
           <ul class="bottom-item">
             <li class="active">
-              {% comment %} <a href="{% url "account" account.account_number %}"> {% endcomment %}
+              <a href="{% url "account" request.user.account.account_number %}">
 
                 <img
                   src="{% static 'assets1/images/icon/account.png' %}"

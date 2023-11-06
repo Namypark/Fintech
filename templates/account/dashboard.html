@@ -5,13 +5,14 @@
   <div class="overlay pt-120">
     <div class="container-fruid">
       <div class="row">
-        <div class="col-xl-8 col-lg-7">
+        <div class="col-xl-12 col-lg-12">
           <div class="section-content">
+            {% comment %}
             <div class="acc-details">
               <div class="top-area">
                 <div class="left-side">
-                  <h5>Hi, Kevin Martin!</h5>
-                  <h2>$30,700.00</h2>
+                  <h5>Hi, {{kyc.full_name}}!</h5>
+                  <h2>{{account.account_balance}}</h2>
                   <h5 class="receive">Last Received <span>$25,700.00</span></h5>
                 </div>
                 <div class="right-side">
@@ -29,7 +30,7 @@
                         aria-expanded="false"
                       >
                         <img
-                          src="{% static 'assets1/images/icon/option.png' %}"
+                          src="{% static 'assets/images/icon/option.png' %}"
                           alt="icon"
                         />
                       </button>
@@ -69,7 +70,7 @@
                       aria-expanded="false"
                     >
                       <img
-                        src="{% static 'assets1/images/icon/option.png' %}"
+                        src="{% static 'assets/images/icon/option.png' %}"
                         alt="icon"
                       />
                     </button>
@@ -102,7 +103,9 @@
                 </div>
               </div>
             </div>
-            <div class="transactions-area mt-40">
+            {% endcomment %}
+
+            <div class="transactions-area">
               <div class="section-text">
                 <h5>Transactions</h5>
                 <p>Updated every several minutes</p>
@@ -122,7 +125,7 @@
                       aria-controls="latest"
                       aria-selected="true"
                     >
-                      Latest
+                      sent
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
@@ -136,14 +139,14 @@
                       aria-controls="upcoming"
                       aria-selected="false"
                     >
-                      Upcoming
+                      received
                     </button>
                   </li>
                 </ul>
                 <div class="view-all d-flex align-items-center">
                   <a href="javascript:void(0)">View All</a>
                   <img
-                    src="{% static 'assets1/images/icon/right-arrow.png' %}"
+                    src="{% static 'assets/images/icon/right-arrow.png' %}"
                     alt="icon"
                   />
                 </div>
@@ -166,126 +169,46 @@
                         </tr>
                       </thead>
                       <tbody>
+                        {% for sender_transactions in sender_transaction %}
                         <tr
                           data-bs-toggle="modal"
                           data-bs-target="#transactionsMod"
                         >
                           <th scope="row">
-                            <p>Bangkok Bank</p>
-                            <p class="mdr">Withdraw to bank account</p>
+                            <a href="{% url "transaction_detail" sender_transactions.transaction_id %}"><p>
+                              {{sender_transactions.receiver.kyc.full_name}}
+                            </p></a>
+                            <p class="mdr">
+                              {{sender_transactions.transaction_description}}
+                            </p>
                           </th>
                           <td>
-                            <p>03:00 PM</p>
-                            <p class="mdr">10 Mar 2022</p>
+                            <p>
+                              {{sender_transactions.transaction_time| time}}
+                            </p>
+                            <p class="mdr">
+                              {{sender_transactions.transaction_time|date:"F, j Y"}}
+                            </p>
                           </td>
                           <td>
-                            <p class="inprogress">In Progress</p>
+                            <p class="{{sender_transactions.status}}">
+                              {{sender_transactions.status}}
+                            </p>
                           </td>
                           <td>
-                            <p>-$520</p>
-                            <p class="mdr">$3.0</p>
+                            {% if sender_transactions.amount.amount > 0%}
+                            <p>-{{sender_transactions.amount}}</p>
+                            {% else %}
+                            <p>{{sender_transactions.amount}}</p>
+
+                            {% endif %}
+                            <p class="mdr">
+                              {{sender_transactions.transaction_fee}}
+                            </p>
                           </td>
                         </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Envato Pty Ltd</p>
-                            <p class="mdr">Marketplace Payment Received</p>
-                          </th>
-                          <td>
-                            <p>04:30 PM</p>
-                            <p class="mdr">01 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="completed">Completed</p>
-                          </td>
-                          <td>
-                            <p>+$450</p>
-                            <p class="mdr">No Fees</p>
-                          </td>
-                        </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Mailchimp</p>
-                            <p class="mdr">Subscription Service Payment</p>
-                          </th>
-                          <td>
-                            <p>01:15 PM</p>
-                            <p class="mdr">25 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="completed">Completed</p>
-                          </td>
-                          <td>
-                            <p>-$100</p>
-                            <p class="mdr">No Fees</p>
-                          </td>
-                        </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Facebook Ads</p>
-                            <p class="mdr">Ads Service</p>
-                          </th>
-                          <td>
-                            <p>07:05 PM</p>
-                            <p class="mdr">15 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="pending">Pending</p>
-                          </td>
-                          <td>
-                            <p>$200</p>
-                            <p class="mdr">No Fees</p>
-                          </td>
-                        </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Upwork Escow Inc</p>
-                            <p class="mdr">Payment payment</p>
-                          </th>
-                          <td>
-                            <p>04:02 PM</p>
-                            <p class="mdr">10 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="completed">Completed</p>
-                          </td>
-                          <td>
-                            <p>$450</p>
-                            <p class="mdr">$.5</p>
-                          </td>
-                        </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Ron Stewart</p>
-                            <p class="mdr">Payment Refund</p>
-                          </th>
-                          <td>
-                            <p>11:00 PM</p>
-                            <p class="mdr">21 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="cancelled">Cancelled</p>
-                          </td>
-                          <td>
-                            <p>+$450</p>
-                            <p class="mdr">No Fees</p>
-                          </td>
-                        </tr>
+
+                        {% endfor %}
                       </tbody>
                     </table>
                   </div>
@@ -307,124 +230,45 @@
                         </tr>
                       </thead>
                       <tbody>
+                        {% for receiver_transactions in receiver_transaction %}
                         <tr
                           data-bs-toggle="modal"
                           data-bs-target="#transactionsMod"
                         >
                           <th scope="row">
-                            <p>Bangkok Bank</p>
-                            <p class="mdr">Withdraw to bank account</p>
+                            <p>
+                             <a href="{% url "transaction_detail" receiver_transactions.transaction_id %}">{{receiver_transactions.receiver.kyc.full_name}}</a> 
+                            </p>
+                            <p class="mdr">
+                              {{receiver_transactions.transaction_description}}
+                            </p>
                           </th>
                           <td>
-                            <p>03:00 PM</p>
-                            <p class="mdr">10 Mar 2022</p>
+                            <p>
+                              {{receiver_transactions.transaction_time| time}}
+                            </p>
+                            <p class="mdr">
+                              {{receiver_transactions.transaction_time|date:"F, j Y"}}
+                            </p>
                           </td>
                           <td>
-                            <p class="inprogress">In Progress</p>
+                            <p class="{{receiver_transactions.status}}">
+                              {{receiver_transactions.status}}
+                            </p>
                           </td>
                           <td>
-                            <p>-$520</p>
-                            <p class="mdr">$3.0</p>
+                            {% if receiver_transactions.amount.amount > 0%}
+                            <p>+{{receiver_transactions.amount}}</p>
+                            {% else %}
+                            <p>{{receiver_transactions.amount}}</p>
+
+                            {% endif %}
+                            <p class="mdr">
+                              {{receiver_transactions.transaction_fee}}
+                            </p>
                           </td>
                         </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Envato Pty Ltd</p>
-                            <p class="mdr">Marketplace Payment Received</p>
-                          </th>
-                          <td>
-                            <p>04:30 PM</p>
-                            <p class="mdr">01 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="completed">Completed</p>
-                          </td>
-                          <td>
-                            <p>+$450</p>
-                            <p class="mdr">No Fees</p>
-                          </td>
-                        </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Mailchimp</p>
-                            <p class="mdr">Subscription Service Payment</p>
-                          </th>
-                          <td>
-                            <p>01:15 PM</p>
-                            <p class="mdr">25 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="completed">Completed</p>
-                          </td>
-                          <td>
-                            <p>-$100</p>
-                            <p class="mdr">No Fees</p>
-                          </td>
-                        </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Facebook Ads</p>
-                            <p class="mdr">Ads Service</p>
-                          </th>
-                          <td>
-                            <p>07:05 PM</p>
-                            <p class="mdr">15 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="pending">Pending</p>
-                          </td>
-                          <td>
-                            <p>$200</p>
-                            <p class="mdr">No Fees</p>
-                          </td>
-                        </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Upwork Escow Inc</p>
-                            <p class="mdr">Payment payment</p>
-                          </th>
-                          <td>
-                            <p>04:02 PM</p>
-                            <p class="mdr">10 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="completed">Completed</p>
-                          </td>
-                          <td>
-                            <p>$450</p>
-                            <p class="mdr">$.5</p>
-                          </td>
-                        </tr>
-                        <tr
-                          data-bs-toggle="modal"
-                          data-bs-target="#transactionsMod"
-                        >
-                          <th scope="row">
-                            <p>Ron Stewart</p>
-                            <p class="mdr">Payment Refund</p>
-                          </th>
-                          <td>
-                            <p>11:00 PM</p>
-                            <p class="mdr">21 Mar 2022</p>
-                          </td>
-                          <td>
-                            <p class="cancelled">Cancelled</p>
-                          </td>
-                          <td>
-                            <p>+$450</p>
-                            <p class="mdr">No Fees</p>
+                        {% endfor %}
                           </td>
                         </tr>
                       </tbody>
@@ -432,223 +276,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-4 col-lg-5">
-          <div class="side-items">
-            <div class="single-item">
-              <div
-                class="section-text d-flex align-items-center justify-content-between"
-              >
-                <h6>Linked Payment system</h6>
-                <div class="right-side">
-                  <div class="dropdown-area">
-                    <button
-                      type="button"
-                      id="dropdownMenuButton1"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <img
-                        src="{% static 'assets1/images/icon/option.png' %}"
-                        alt="icon"
-                      />
-                    </button>
-                    <ul
-                      class="dropdown-menu"
-                      aria-labelledby="dropdownMenuButton1"
-                    >
-                      <li>
-                        <a class="dropdown-item" href="account.html">Update</a>
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="javascript:void(0)"
-                          >Virtual card</a
-                        >
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-6">
-                  <div class="single-card">
-                    <button
-                      type="button"
-                      class="reg w-100"
-                      data-bs-toggle="modal"
-                      data-bs-target="#cardMod"
-                    >
-                      <img
-                        src="{% static 'assets1/images/visa-card.png' %}"
-                        alt="image"
-                        class="w-100"
-                      />
-                    </button>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="single-card">
-                    <button
-                      type="button"
-                      class="reg w-100"
-                      data-bs-toggle="modal"
-                      data-bs-target="#cardMod"
-                    >
-                      <img
-                        src="{% static 'assets1/images/paylio-card.png' %}"
-                        alt="image"
-                        class="w-100"
-                      />
-                    </button>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="single-card">
-                    <button
-                      type="button"
-                      class="reg w-100"
-                      data-bs-toggle="modal"
-                      data-bs-target="#cardMod"
-                    >
-                      <img
-                        src="{% static 'assets1/images/paypal-card.png' %}"
-                        alt="image"
-                        class="w-100"
-                      />
-                    </button>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="single-card">
-                    <button
-                      type="button"
-                      class="reg w-100"
-                      data-bs-toggle="modal"
-                      data-bs-target="#cardMod"
-                    >
-                      <img
-                        src="{% static 'assets1/images/blockchain-card.png' %}"
-                        alt="image"
-                        class="w-100"
-                      />
-                    </button>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="single-card">
-                    <button
-                      type="button"
-                      class="reg w-100"
-                      data-bs-toggle="modal"
-                      data-bs-target="#addcardMod"
-                    >
-                      <img
-                        src="{% static 'assets1/images/add-new.png' %}"
-                        alt="image"
-                        class="w-100"
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="single-item">
-              <div
-                class="section-text d-flex align-items-center justify-content-between"
-              >
-                <h6>Payment Analytics</h6>
-                <div class="select-box">
-                  <select>
-                    <option>Monthly</option>
-                    <option value="1">Jan</option>
-                    <option value="2">Feb</option>
-                    <option value="3">Mar</option>
-                  </select>
-                </div>
-              </div>
-              <div id="chart"></div>
-            </div>
-            <div class="single-item">
-              <div
-                class="section-text d-flex align-items-center justify-content-between"
-              >
-                <h6>Recipients</h6>
-                <div class="view-all d-flex align-items-center">
-                  <a href="javascript:void(0)">View All</a>
-                  <img
-                    src="{% static 'assets1/images/icon/right-arrow.png' %}"
-                    alt="icon"
-                  />
-                </div>
-              </div>
-              <ul class="recipients-item">
-                <li>
-                  <p class="left d-flex align-items-center">
-                    <img
-                      src="{% static 'assets1/images/recipients-1.png' %}"
-                      alt="icon"
-                    />
-                    <span class="info">
-                      <span>Phil King</span>
-                      <span>08:00 AM — 19 August</span>
-                    </span>
-                  </p>
-                  <p class="right">
-                    <span> +$345</span>
-                    <span>Payment</span>
-                  </p>
-                </li>
-                <li>
-                  <p class="left d-flex align-items-center">
-                    <img
-                      src="{% static 'assets1/images/recipients-2.png' %}"
-                      alt="icon"
-                    />
-                    <span class="info">
-                      <span>Debra Wilson</span>
-                      <span>08:00 AM — 19 August</span>
-                    </span>
-                  </p>
-                  <p class="right">
-                    <span class="loss">-$850</span>
-                    <span>Refund</span>
-                  </p>
-                </li>
-                <li>
-                  <p class="left d-flex align-items-center">
-                    <img
-                      src="{% static 'assets1/images/recipients-3.png' %}"
-                      alt="icon"
-                    />
-                    <span class="info">
-                      <span>Philip Henry</span>
-                      <span>08:00 AM — 19 August</span>
-                    </span>
-                  </p>
-                  <p class="right">
-                    <span>+$2.050</span>
-                    <span>Payment</span>
-                  </p>
-                </li>
-                <li>
-                  <p class="left d-flex align-items-center">
-                    <img
-                      src="{% static 'assets1/images/recipients-4.png' %}"
-                      alt="icon"
-                    />
-                    <span class="info">
-                      <span>Erin Garcia</span>
-                      <span>08:00 AM — 19 August</span>
-                    </span>
-                  </p>
-                  <p class="right">
-                    <span> +$900</span>
-                    <span>Payment</span>
-                  </p>
-                </li>
-              </ul>
             </div>
           </div>
         </div>
@@ -680,7 +307,7 @@
                 <div class="top-area mb-40 mt-40 text-center">
                   <div class="card-area mb-30">
                     <img
-                      src="{% static 'assets1/images/visa-card-2.png' %}"
+                      src="{% static 'assets/images/visa-card-2.png' %}"
                       alt="image"
                     />
                   </div>
@@ -705,7 +332,7 @@
                         aria-selected="false"
                       >
                         <img
-                          src="{% static 'assets1/images/icon/limit.png' %}"
+                          src="{% static 'assets/images/icon/limit.png' %}"
                           alt="icon"
                         />
                         Set transfer limit
@@ -726,7 +353,7 @@
                     <li>
                       <button>
                         <img
-                          src="{% static 'assets1/images/icon/remove.png' %}"
+                          src="{% static 'assets/images/icon/remove.png' %}"
                           alt="icon"
                         />
                         Remove from Linked
@@ -906,7 +533,7 @@
 </div>
 <!-- Add Card Popup start -->
 
-<!-- Transactions Popup start -->
+{% comment %} <!-- Transactions Popup start -->
 <div class="transactions-popup">
   <div class="container-fruid">
     <div class="row">
@@ -930,12 +557,12 @@
                   <div class="col-sm-5 text-center">
                     <div class="icon-area">
                       <img
-                        src="{% static 'assets1/images/icon/transaction-details-icon.png' %}"
+                        src="{% static 'assets/images/icon/transaction-details-icon.png' %}"
                         alt="icon"
                       />
                     </div>
                     <div class="text-area">
-                      <h6>Envato Pty Ltd</h6>
+                      <h6>{{sender_transactions.sender.full_name}}xxxx</h6>
                       <p>16 Jan 2022</p>
                       <h3>717.14 USD</h3>
                       <p class="com">Completed</p>
@@ -984,7 +611,18 @@
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
+
+{% comment %} <script src="{% static 'assets1/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets1/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets1/js/jquery-ui.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/apexcharts.js' %}"></script>
+<!-- THIS JQUERY IMPORT WAS AFFECTING THE SMART SELECT FOR CITY-->
+<script src="{% static 'assets1/js/plugin/jquery.nice-select.min.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/waypoint.min.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/wow.min.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/plugin.js' %}"></script>
+<script src="{% static 'assets1/js/main.js' %}"></script> {% endcomment %}
 <!-- Transactions Popup start -->
 {% endblock content %}
 <!--==================================================================-->

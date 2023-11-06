@@ -139,9 +139,8 @@ def transfer_amount(request, account_number):
     try:
         transfer_account = Account.objects.get(account_number=account_number)
 
-    except Account.DoesNotExist:
+    except:
         transfer_account = None
-        messages.warning(request, "Account does not exist")
 
         return redirect("search_account")
     context = {
@@ -224,6 +223,7 @@ def transaction_confirmation(request, account_number, transaction_id):
     return render(request, "account/payment-confirmation.html", context)
 
 
+@login_required(login_url="loginUser")
 def transaction_process(request, account_number, transaction_id):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
@@ -265,6 +265,7 @@ def transaction_process(request, account_number, transaction_id):
         return redirect("transaction_confirmation", account_number, transaction_id)
 
 
+@login_required(login_url="loginUser")
 def successful_transaction_confirmation(request, transaction_id):
     account = request.user.account
     kyc = account.kyc
@@ -272,3 +273,40 @@ def successful_transaction_confirmation(request, transaction_id):
 
     context = {"account": account, "kyc": kyc, "transaction": transaction}
     return render(request, "account/success.html", context)
+
+
+def dashboard(request):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    transaction = Transaction.objects.filter(user=request.user)
+    sender_transaction = transaction.filter(sender=account).order_by(
+        "-transaction_time"
+    )
+    receiver_transaction = Transaction.objects.filter(receiver=account).order_by(
+        "-transaction_time"
+    )
+
+    context = {
+        "account": account,
+        "kyc": kyc,
+        "sender_transaction": sender_transaction,
+        "receiver_transaction": receiver_transaction,
+        "transaction": transaction,
+    }
+
+    return render(request, "account/dashboard.html", context)
+
+
+def transaction_detail(request, transaction_id):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    
+    try:
+        transaction = Transaction.objects.get(transaction_id=transaction_id)
+
+    except Transaction.DoesNotExist:
+        transaction = None
+        messages.warning(request, "Transaction does not exist")
+        redirect("dashboard")
+    context = {"transaction": transaction, 'kyc': kyc}
+    return render(request, "account/transaction_details.html", context)
