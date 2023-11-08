@@ -46,6 +46,9 @@ TRANSACTION_STATUS = (
     ("completed", "COMPLETED"),
     ("pending", "PENDING"),
     ("processing", "PROCESSING"),
+    ("request_sent", "REQUEST SENT"),
+    ("request_processing", "REQUEST PROCESSING"),
+    ("request_completed", "REQUEST COMPLETED"),
 )
 
 
@@ -166,10 +169,10 @@ class Transaction(models.Model):
         Account, on_delete=models.SET_NULL, null=True, related_name="sender_account"
     )
     status = models.CharField(
-        choices=TRANSACTION_STATUS, default="pending", max_length=12
+        choices=TRANSACTION_STATUS, default="pending", max_length=30
     )
     transaction_type = models.CharField(
-        choices=TRANSACTION_TYPE, default="none", max_length=12
+        choices=TRANSACTION_TYPE, default="none", max_length=30
     )
     transaction_description = models.CharField(
         max_length=1000, default="payment", blank=True, null=True

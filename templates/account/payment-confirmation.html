@@ -11,7 +11,7 @@
           <h4>Make a Payment</h4>
           <div class="icon-area">
             <img
-              src="{% static 'assets1/images/icon/support.png' %}"
+              src="{% static 'assets/images/icon/support.png' %}"
               alt="icon"
             />
           </div>
@@ -254,7 +254,7 @@
                     <p>Transfer was completed.</p>
                   </div>
                   <script>
-                    function delayRedirect() {
+                    {% comment %} function delayRedirect() {
                         // Display your pop-up or any necessary interactions here
                         // For example, you can use a modal or a timeout for pop-ups
                         // ...
@@ -262,11 +262,11 @@
                         // Delay for 15 seconds (adjust the time as needed)
                         setTimeout(function() {
                             window.location.href = '{% url "transaction_confirmation" transaction.transaction_id  %}'; // Replace with your target URL
-                        }, 15000); // 15 seconds (adjust the delay time in milliseconds)
+                        }, 15000); // 15 seconds (adjust the delay time in milliseconds) {% endcomment %}
                     }
             
                     // Call the delayRedirect function when the page loads
-                    window.onload = delayRedirect;
+                    {% comment %} window.onload = delayRedirect; {% endcomment %}
                   </script>
                 </div>
               </div>
@@ -293,9 +293,14 @@
 </div>
 <!-- Transfer Popup start -->
 
-<script
-  data-cfasync="false"
-  src="{% static '/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js' %}"
-></script>
-
+<script src="{% static 'assets1/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets1/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets1/js/jquery-ui.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/apexcharts.js' %}"></script>
+<!-- THIS JQUERY IMPORT WAS AFFECTING THE SMART SELECT FOR CITY-->
+{% comment %} <script src="{% static 'assets1/js/plugin/jquery.nice-select.min.js' %}"></script> {% endcomment %}
+<script src="{% static 'assets1/js/plugin/waypoint.min.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/wow.min.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/plugin.js' %}"></script>
+<script src="{% static 'assets1/js/main.js' %}"></script>
 {% endblock content %}

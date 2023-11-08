@@ -1,0 +1,110 @@
+{% extends "core/base1.html" %} {% load static %} {% block content %}
+<section class="dashboard-section body-collapse pay step step-2 receive-2">
+  <div class="overlay pt-120">
+    <div class="container-fruid">
+      <div class="main-content">
+        <div
+          class="head-area d-flex align-items-center justify-content-between"
+        >
+          <h4>Request a Payment</h4>
+          <div class="icon-area">
+            <img
+              src="{% static 'assets/images/icon/support.png' %}"
+              alt="icon"
+            />
+          </div>
+        </div>
+        <div class="choose-recipient">
+          <div class="step-area">
+            <span class="mdr">Step 2 of 4</span>
+            <h5>Payment Details</h5>
+          </div>
+          <div class="user-select">
+            <div class="single-user">
+              <div class="left d-flex align-items-center">
+                <div class="img-area">
+                  <img
+                  src="{{ requested_account.kyc.image.url}}"
+                  alt="image"
+                  style="width: 60px; height: 60px; border-radius: 50%"
+                />
+                </div>
+                <div class="text-area">
+                  <p>{{requested_account.kyc.full_name}}</p>
+                  <span class="mdr"
+                    ><b>{{requested_account.account_number}}</b>
+                    </span
+                  >
+                </div>
+              </div>
+              <div class="right">
+                <a href="javascript:void(0)">
+                  <i class="icon-g-tick"></i>
+                  Choose
+                </a>
+                <a href="{% url "receive_request" %}">
+                  <i class="icon-h-edit"></i>
+                  Edit
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <form action="{% url "request_process" requested_account.account_number %}" method='POST'>
+            {% csrf_token %}
+          <div class="send-banance">
+            <span class="mdr">You Send</span>
+            <div class="input-area">
+              <input class="xxlr" placeholder="100.00" type="number" name='amount'  min="1" required/>
+              <select>
+                <option value="1">USD</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-field row">
+            <div class="col-md-12">
+              <div class="single-input">
+                <label for="description">Description</label>
+                <input
+                  type="text"
+                  id="description"
+                  placeholder="Software Development",
+                  name="description"
+                />
+              </div>
+            </div>
+           
+          <div class="footer-area mt-40">
+            <a href="{% url "receive_request" %}">Previous Step</a>
+            <button
+            type="submit"
+            class="active"
+            style="
+              padding: 10px 30px;
+              border-radius: 20%;
+              margin: 0px 10px;
+              background-color: #fff;
+              border: 1px solid rgb(221, 232, 255);
+            "
+            onmouseover="this.style.backgroundColor='rgb(87, 50, 189)';"
+            onmouseout="this.style.backgroundColor='rgb(247, 249, 253)';"
+          >
+            Next
+          </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="{% static 'assets1/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets1/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets1/js/jquery-ui.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/apexcharts.js' %}"></script>
+<!-- THIS JQUERY IMPORT WAS AFFECTING THE SMART SELECT FOR CITY-->
+<script src="{% static 'assets1/js/plugin/jquery.nice-select.min.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/waypoint.min.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/wow.min.js' %}"></script>
+<script src="{% static 'assets1/js/plugin/plugin.js' %}"></script>
+<script src="{% static 'assets1/js/main.js' %}"></script>
+{% endblock content %}

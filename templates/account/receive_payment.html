@@ -1,0 +1,86 @@
+{% extends "core/base1.html" %} {% load static %} {% block content %}
+
+<!-- Dashboard Section start -->
+<section class="dashboard-section body-collapse pay step">
+  <div class="overlay pt-120">
+    <div class="container-fruid">
+      <div class="main-content">
+        <div
+          class="head-area d-flex align-items-center justify-content-between"
+        >
+          <h4>Payment Request</h4>
+          <div class="icon-area">
+            <img
+              src="{% static 'assets1/images/icon/support.png' %}"
+              alt="icon"
+            />
+          </div>
+        </div>
+        
+        <form action="{% url "receive_request" %}" class="flex-fill" method="POST">
+          {% csrf_token %}
+          <div class="form-group d-flex align-items-center">
+            <img
+              src="{% static 'assets1/images/icon/search.png' %}"
+              alt="icon"
+            />
+            <input type="search" name="search_query" placeholder="Enter Account number or ID" />
+            <button type='submit'><i class="fas fa-search " aria-hidden='true'></i></button>
+          </div>
+        </form>
+        <!-- user -start-->
+        <div class="user-select">
+          {% if query %}
+
+          {% for accounts in all_accounts  %}
+          <div class="single-user">
+            <div class="left d-flex align-items-center">
+              <div class="img-area">
+                <img
+                  src='{{ accounts.kyc.image.url}}'
+                  alt="image"
+                  style="width: 60px; height: 60px; border-radius: 50%;"
+                />
+              </div>
+              <div class="text-area">
+                <p><b>{{accounts.kyc.full_name}}</b></p>
+                <span class='mdr'><b>{{accounts.account_number}}</b></span>
+                
+              </div>
+            </div>
+            <div class="right">
+              <a href="{% url 'receive_request_2' account_id=accounts.account_number %}">Choose</a>
+            </div>
+          </div>
+          {% empty %}
+          <div>
+            <h4>No Account</h4>
+          </div>
+          {% endfor %}
+          {% endif %}
+          
+          
+        </div>
+        <!--User-end-->
+        <div class="footer-area mt-40">
+          {% if previous_url %}
+          <a href="{{previous_url}}">Previous Step</a>
+          {% endif %}
+          {% if query %}
+
+          {% for accounts in all_accounts %}
+          <a href="{% url 'receive_request_2' accounts.account_number %}" class="active">Next</a>
+
+          {% endfor %}
+          {% else %}
+          <a href="#" class="active" style="pointer-events:none">Next</a>
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Dashboard Section end -->
+
+{% endblock %}

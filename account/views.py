@@ -1,3 +1,4 @@
+from multiprocessing import context
 import time
 from django.dispatch import receiver
 from django.http import HttpResponse, JsonResponse
@@ -102,14 +103,12 @@ def search_account(request):
             Q(account_number__icontains=query, status="active")
             | Q(account_id__icontains=query, status="active")
         ).distinct()
-        if all_accounts.exists() == True:
+        if all_accounts.exists():
             messages.success(request, "Accounts found")
         else:
             all_accounts = all_accounts.filter(status="active")
 
-    kyc = KYC.objects.get(
-        account=account,
-    )
+    kyc = account.kyc
 
     context = {
         "account": account,
@@ -253,9 +252,11 @@ def transaction_process(request, account_number, transaction_id):
 
             transferred_account.account_balance += transaction.amount
             transferred_account.save()
-            messages.success(request, "Transaction successfully")
-            return HttpResponse(status=204)
-            # return redirect("transaction_confirmation", account_number, transaction_id)
+            messages.success(request, "Transaction successful")
+            time.sleep(3)
+            return redirect(
+                "successful_transaction_confirmation", transaction.transaction_id
+            )
 
         else:
             messages.success(request, "Pin is not correct please retry")
@@ -275,6 +276,7 @@ def successful_transaction_confirmation(request, transaction_id):
     return render(request, "account/success.html", context)
 
 
+@login_required(login_url="loginUser")
 def dashboard(request):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
@@ -297,10 +299,11 @@ def dashboard(request):
     return render(request, "account/dashboard.html", context)
 
 
+@login_required(login_url="loginUser")
 def transaction_detail(request, transaction_id):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
-    
+
     try:
         transaction = Transaction.objects.get(transaction_id=transaction_id)
 
@@ -308,5 +311,122 @@ def transaction_detail(request, transaction_id):
         transaction = None
         messages.warning(request, "Transaction does not exist")
         redirect("dashboard")
-    context = {"transaction": transaction, 'kyc': kyc}
+    context = {"transaction": transaction, "kyc": kyc}
     return render(request, "account/transaction_details.html", context)
+
+
+@login_required(login_url="loginUser")
+def receive_request(request):
+    account = Account.objects.get(user=request.user)
+    all_accounts = None
+    kyc = account.kyc
+    previous_url = request.META.get("HTTP_REFERER", None)
+    query = request.POST.get("search_query")
+
+    if query:
+        all_accounts = Account.objects.filter(
+            Q(account_number__icontains=query, status="active")
+            | Q(account_id__icontains=query, status="active")
+        ).distinct()
+
+    context = {
+        "kyc": kyc,
+        "all_accounts": all_accounts,
+        "previous_url": previous_url,
+        "query": query,
+        "account": account,
+    }
+    return render(request, "account/receive_payment.html", context)
+
+
+def receive_request_2(request, account_id):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    requested_account = Account.objects.get(account_number=account_id)
+
+    context = {"kyc": kyc, "requested_account": requested_account, "account": account}
+    return render(request, "account/receive_payment2.html", context)
+
+
+def request_process(request, account_id):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    requested_account = Account.objects.get(account_number=account_id)
+
+    # print(requested_account)
+    print("before post")
+    if request.method == "POST":
+        amount = request.POST.get("amount")
+        description = request.POST.get("description")
+
+        transaction = Transaction.objects.create(
+            user=request.user,
+            amount=amount,
+            status="request_processing",
+            transaction_type="request",
+            transaction_description=description,
+            sender=account,
+            receiver=requested_account,
+        )
+        transaction.save()
+        print("save")
+        return redirect("receive_request_3", transaction_id=transaction.transaction_id)
+    else:
+        messages.warning(
+            request, "Error something went wrong with with the transaction"
+        )
+        return redirect("receive_request_2", account_id)
+
+
+def receive_request_3(request, transaction_id):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    transaction = Transaction.objects.get(transaction_id=transaction_id)
+    transaction.status = "request_sent"
+    transaction.save()
+    requested_account = transaction.receiver
+    context = {
+        "account": account,
+        "kyc": kyc,
+        "transaction": transaction,
+        "requested_account": requested_account,
+    }
+    return render(request, "account/receive_payment3.html", context)
+
+
+def receive_request_confirmation(request, transaction_id):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    transaction = Transaction.objects.get(transaction_id=transaction_id)
+    pin = ""
+    if request.method == "POST":
+        pin_ = request.POST.get("pin1")
+
+        for i in range(1, 5):
+            pin_ = request.POST.get(f"pin{i}")
+            pin += pin_
+
+        if pin == account.pin:
+            transaction.status = "request_completed"
+            transaction.save()
+
+            # deduction from senders account
+
+            # allocating the money to the receiver
+            messages.success(request, "Request successful")
+            return redirect("successful_request_confirmation", transaction_id)
+
+        else:
+            messages.warning(request, "Pin is not correct please retry")
+            return redirect("receive_request_3", transaction_id)
+    else:
+        return redirect("receive_request_3", transaction_id)
+
+
+def successful_request_confirmation(request, transaction_id):
+    account = request.user.account
+    kyc = account.kyc
+    transaction = Transaction.objects.get(transaction_id=transaction_id)
+
+    context = {"account": account, "kyc": kyc, "transaction": transaction}
+    return render(request, "account/request_success.html", context)

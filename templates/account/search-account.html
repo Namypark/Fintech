@@ -16,7 +16,7 @@
             />
           </div>
         </div>
-        <div class="choose-recipient">
+        {% comment %} <div class="choose-recipient">
           <div class="step-area">
             <span class="mdr">Step 1 of 3</span>
             <h5>Choose Recipient</h5>
@@ -42,7 +42,7 @@
             </button>
           </div>
           <p class="recipients-item">{{all_accounts.count}}</p>
-        </div>
+        </div> {% endcomment %}
         <form action="{% url "search_account" %}" class="flex-fill" method="POST">
           {% csrf_token %}
           <div class="form-group d-flex align-items-center">

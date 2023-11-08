@@ -30,11 +30,41 @@ urlpatterns = [
     path(
         "successful_transaction_confirmation/<str:transaction_id>",
         views.successful_transaction_confirmation,
-        name="transaction_confirmation",
+        name="successful_transaction_confirmation",
     ),
     path(
         "transaction_detail/<str:transaction_id>",
         views.transaction_detail,
         name="transaction_detail",
+    ),
+    path(
+        "receive_request/",
+        views.receive_request,
+        name="receive_request",
+    ),
+    path(
+        "receive_request/<account_id>",
+        views.receive_request_2,
+        name="receive_request_2",
+    ),
+    path(
+        "amount-request/<account_id>",
+        views.request_process,
+        name="request_process",
+    ),
+    path(
+        "amount-request-confirmation/<str:transaction_id>",
+        views.receive_request_3,
+        name="receive_request_3",
+    ),
+    path(
+        "receive_request_confirmation/<str:transaction_id>",
+        views.receive_request_confirmation,
+        name="receive_request_confirmation",
+    ),
+    path(
+        "successful_request_confirmation/<str:transaction_id>",
+        views.successful_request_confirmation,
+        name="successful_request_confirmation",
     ),
 ]

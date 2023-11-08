@@ -255,7 +255,7 @@
               </a>
             </li>
             <li>
-              <a href="{% url "transfer_amount" request.user.account.account_number %}">
+              <a href="{% url "search_account"  %}">
                 <img
                   src="{% static 'assets1/images/icon/pay.png' %}"
                   alt="Pay"
@@ -266,7 +266,7 @@
                 
             </li>
             <li>
-              <a href="receive-step-1.html">
+              <a href="{% url "receive_request" %}">
                 <img
                   src="{% static 'assets1/images/icon/receive.png' %}"
                   alt="Receive"
