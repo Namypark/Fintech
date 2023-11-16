@@ -46,6 +46,7 @@ TRANSACTION_STATUS = (
     ("completed", "COMPLETED"),
     ("pending", "PENDING"),
     ("processing", "PROCESSING"),
+    ("decline", "DECLINED"),
     ("request_sent", "REQUEST SENT"),
     ("request_processing", "REQUEST PROCESSING"),
     ("request_completed", "REQUEST COMPLETED"),

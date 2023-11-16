@@ -67,4 +67,29 @@ urlpatterns = [
         views.successful_request_confirmation,
         name="successful_request_confirmation",
     ),
+    path(
+        "successful_request_confirmation/<str:transaction_id>",
+        views.successful_request_confirmation,
+        name="successful_request_confirmation",
+    ),
+    path(
+        "accept_request/<str:transaction_id>",
+        views.accept_request,
+        name="accept_request",
+    ),
+    path(
+        "cancel_request/<str:transaction_id>",
+        views.cancel_request,
+        name="cancel_request",
+    ),
+    path(
+        "decline_request/<str:transaction_id>",
+        views.decline_request,
+        name="decline_request",
+    ),
+    path(
+        "request_transaction_detail/<str:transaction_id>",
+        views.request_transaction_detail,
+        name="request_transaction_detail",
+    ),
 ]

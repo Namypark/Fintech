@@ -5,6 +5,7 @@
     "python.formatting.provider": "none",
     "cSpell.words": [
         "djmoney",
+        "REFERER",
         "shortuuid",
         "shortuuidfield"
     ]

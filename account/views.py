@@ -93,7 +93,7 @@ def search_account(request):
     account = Account.objects.get(user=request.user)
     all_accounts = Account.objects.all()
     query = request.POST.get("search_query")
-    previous_url = request.META.get("HTTP_REFERER", None)
+    previous_url = request.META.get("HTTP_ ", None)
     """
     if the account exists 
     Search the account for the query requested 
@@ -123,9 +123,34 @@ def search_account(request):
 @login_required(login_url="loginUser")
 def transactions(request):
     account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+    transaction = Transaction.objects.filter(user=request.user)
+    sender_transaction = transaction.filter(
+        sender=account, transaction_type="transfer"
+    ).order_by("-transaction_time")
+    receiver_transaction = Transaction.objects.filter(
+        receiver=account, transaction_type="transfer"
+    ).order_by("-transaction_time")
 
-    context = {"account": account}
-    return render(request, "account/transactions.html", context)
+    request_sent_transaction = transaction.filter(
+        sender=account, transaction_type="request"
+    ).order_by("-transaction_time")
+    request_received_transaction = Transaction.objects.filter(
+        receiver=account, transaction_type="request"
+    ).order_by("-transaction_time")
+
+    print(request_received_transaction.count())
+    context = {
+        "account": account,
+        "kyc": kyc,
+        "sender_transaction": sender_transaction,
+        "receiver_transaction": receiver_transaction,
+        "request_sent_transaction": request_sent_transaction,
+        "request_received_transaction": request_received_transaction,
+        "transaction": transaction,
+    }
+
+    return render(request, "account/transaction.html", context)
 
 
 @login_required(login_url="loginUser")
@@ -362,7 +387,7 @@ def request_process(request, account_id):
         transaction = Transaction.objects.create(
             user=request.user,
             amount=amount,
-            status="request_processing",
+            status="request_sent",
             transaction_type="request",
             transaction_description=description,
             sender=account,
@@ -382,7 +407,6 @@ def receive_request_3(request, transaction_id):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
     transaction = Transaction.objects.get(transaction_id=transaction_id)
-    transaction.status = "request_sent"
     transaction.save()
     requested_account = transaction.receiver
     context = {
@@ -407,7 +431,7 @@ def receive_request_confirmation(request, transaction_id):
             pin += pin_
 
         if pin == account.pin:
-            transaction.status = "request_completed"
+            transaction.status = "request_processing"
             transaction.save()
 
             # deduction from senders account
@@ -430,3 +454,86 @@ def successful_request_confirmation(request, transaction_id):
 
     context = {"account": account, "kyc": kyc, "transaction": transaction}
     return render(request, "account/request_success.html", context)
+
+
+def request_transaction_detail(request, transaction_id):
+    account = Account.objects.get(user=request.user)
+    kyc = account.kyc
+
+    try:
+        transaction = Transaction.objects.get(transaction_id=transaction_id)
+
+    except Transaction.DoesNotExist:
+        transaction = None
+        messages.warning(request, "Transaction does not exist")
+        redirect("dashboard")
+    context = {"transaction": transaction, "kyc": kyc}
+    return render(request, "account/request_transaction_detail.html", context)
+
+
+def accept_request(request, transaction_id):
+    account = request.user.account
+    transaction = Transaction.objects.get(transaction_id=transaction_id)
+    requester_account = transaction.sender
+    try:
+        if transaction.receiver == account:
+            print("same account")
+            if (
+                account.account_balance.amount > 0
+                and account.account_balance > transaction.amount
+            ):
+                print(f"The initial balance was {account.account_balance}")
+                print(
+                    f"The initial balance of the requester was {requester_account.account_balance}"
+                )
+                account.account_balance -= transaction.amount
+                account.save()
+
+                requester_account.account_balance += transaction.amount
+                requester_account.save()
+
+                transaction.status = "request_completed"
+                transaction.save()
+
+                messages.success(
+                    request,
+                    f"Payment to {requester_account.kyc.full_name} successfully",
+                )
+                return redirect("transactions")
+            else:
+                messages.error(request, "Insufficient funds")
+                return redirect("transactions")
+        else:
+            messages.warning(request, "Something went wrong please try again later")
+    except:
+        messages.warning(request, "There was an error please try again")
+        return redirect("transactions")
+
+
+def cancel_request(request, transaction_id):
+    transaction = Transaction.objects.get(transaction_id=transaction_id)
+    account = transaction.sender
+
+    try:
+        if request.user == account.user and transaction:
+            transaction.delete()
+            messages.success(request, "The transaction has been cancelled")
+            return redirect("transactions")
+
+    except:
+        messages.warning(request, "There was an error please try again")
+        return redirect("transactions")
+
+
+def decline_request(request, transaction_id):
+    transaction = Transaction.objects.get(transaction_id=transaction_id)
+    try:
+        if transaction:
+            transaction.status = "decline"
+            messages.success(request, "The transaction was declined")
+            transaction.save()
+            return redirect("transactions")
+
+    except:
+        messages.warning(request, "There was an error please try again")
+        return redirect("transactions")

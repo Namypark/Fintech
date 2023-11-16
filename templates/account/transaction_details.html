@@ -17,8 +17,8 @@
                           <div class="modal-header justify-content-between">
                             <h5>Transaction Details</h5>
                             <a href="{% url 'dashboard' %}"
-                              ><i class="fa-solid fa-arrow-left"></i></a
-                            >
+                              ><i class="fa-solid fa-arrow-left"></i
+                            ></a>
                           </div>
                           <div class="main-content">
                             <div class="row">
@@ -32,23 +32,24 @@
                                   <h5>
                                     <b>{{transaction.amount}} USD</b>
                                   </h5>
-                                  <p>{{transaction.date}}</p>
+                                  <p>{{transaction.transaction_time}}</p>
                                   <!-- <p class="text-warning com ">{{transaction.status|title}}</p> -->
-                                  {% if transaction.status == 'completed' %}
+                                  {% if transaction.status == 'completed' or  transaction.status == 'request_completed' %}
                                   <p class="text-success">
-                                    {{transaction.status|title}}
+                                    {{transaction.get_status_display|title}}
                                   </p>
-                                  {% endif %} {% if transaction.status == 'pending' %}
+                                  {% endif %}
+                                   {% if transaction.status == 'pending' or  transaction.status == 'request_sent' %}
                                   <p class="text-warning">
-                                    {{transaction.status|title}}
+                                    {{transaction.get_status_display|title}}
                                   </p>
                                   {% endif %} {% if transaction.status == 'failed' %}
                                   <p class="danger">
-                                    {{transaction.status|title}}
+                                    {{transaction.get_status_display|title}}
                                   </p>
-                                  {% endif %} {% if transaction.status == 'processing' %}
-                                  <p class="text-warning">
-                                    {{transaction.status|title}}
+                                  {% endif %} {% if transaction.status == 'processing' or transaction.status == 'request_processing' %}
+                                  <p class="text">
+                                    {{transaction.get_status_display|title}}
                                   </p>
                                   {% endif %}
                                 </div>
@@ -59,10 +60,7 @@
                                   <ul class="payment-details">
                                     <li>
                                       <span>Payment Amount</span>
-                                      <span
-                                        >{{transaction.amount}}
-                                        USD</span
-                                      >
+                                      <span>{{transaction.amount}} USD</span>
                                     </li>
                                     <li>
                                       <span>Fee</span>
@@ -70,10 +68,7 @@
                                     </li>
                                     <li>
                                       <span>Total Amount</span>
-                                      <span
-                                        >{{transaction.amount}}
-                                        USD</span
-                                      >
+                                      <span>{{transaction.amount}} USD</span>
                                     </li>
                                   </ul>
                                   <ul class="payment-info">
