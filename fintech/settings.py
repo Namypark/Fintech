@@ -15,7 +15,6 @@ import os
 from django.conf.urls import handler404
 from core.views import error_404
 from django.urls import reverse_lazy
-from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
