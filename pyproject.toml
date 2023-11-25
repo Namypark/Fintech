@@ -63,6 +63,7 @@ pillow = "^10.0.1"
 django-smart-selects = "^1.6.0"
 luhn = "^0.2.0"
 python-decouple = "^3.8"
+gunicorn = "^21.2.0"
 
 
 [build-system]
