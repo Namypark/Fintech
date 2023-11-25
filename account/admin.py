@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Account, KYC, Transaction
+from .models import Account, KYC, CreditCard, Transaction
 from import_export.admin import ImportExportModelAdmin
 
 # Register your models here.
@@ -39,3 +39,13 @@ class TransactionAdminModel(ImportExportModelAdmin):
         ("transaction_time", admin.DateFieldListFilter),
     ]
     date_hierarchy = "transaction_time"
+
+
+@admin.register(CreditCard)
+class CreditCardAdminModel(admin.ModelAdmin):
+    model = CreditCard
+    search_fields = ["cardholder_name", "card_number"]
+    list_editable = ["card_type"]
+    list_filter = [["date", admin.DateFieldListFilter]]
+    list_display = ["user", "card_type", "cardholder_name", "date"]
+    date_hierarchy = "date"

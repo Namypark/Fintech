@@ -1,16 +1,15 @@
-from multiprocessing import context
 import time
 from django.dispatch import receiver
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
-
-from account.models import KYC, Account, Transaction
-from account.forms import KYCForm
+from django.shortcuts import get_object_or_404, redirect, render
+from django.core.exceptions import ObjectDoesNotExist
+from moneyed import Money
+from account.models import KYC, Account, CreditCard, Transaction
+from account.forms import KYCForm, CreditCardForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
+from decimal import Decimal
 
 
 # Create your views here.
@@ -304,24 +303,65 @@ def successful_transaction_confirmation(request, transaction_id):
 @login_required(login_url="loginUser")
 def dashboard(request):
     account = Account.objects.get(user=request.user)
-    kyc = account.kyc
-    transaction = Transaction.objects.filter(user=request.user)
-    sender_transaction = transaction.filter(sender=account).order_by(
-        "-transaction_time"
-    )
-    receiver_transaction = Transaction.objects.filter(receiver=account).order_by(
-        "-transaction_time"
-    )
+    if request.user.is_authenticated:
+        try:
+            kyc = account.kyc
 
-    context = {
-        "account": account,
-        "kyc": kyc,
-        "sender_transaction": sender_transaction,
-        "receiver_transaction": receiver_transaction,
-        "transaction": transaction,
-    }
+        except:
+            messages.error(request, "Make sure you have submitted your KYC")
+            return redirect("kyc-registration")
+        transaction = Transaction.objects.filter(user=request.user)
+        sender_transaction = transaction.filter(
+            sender=account, transaction_type="transfer"
+        ).order_by("-transaction_time")
+        receiver_transaction = Transaction.objects.filter(
+            receiver=account, transaction_type="transfer"
+        ).order_by("-transaction_time")
+        request_sent_transaction = transaction.filter(
+            sender=account, transaction_type="request"
+        ).order_by("-transaction_time")
+        request_received_transaction = Transaction.objects.filter(
+            receiver=account, transaction_type="request"
+        ).order_by("-transaction_time")
+        payout = sum([x.amount.amount for x in sender_transaction])
+        recent_transactions = Transaction.objects.filter(
+            Q(receiver=account) | Q(sender=account)
+        ).order_by("-transaction_time")[:4]
 
-    return render(request, "account/dashboard.html", context)
+        cards = CreditCard.objects.filter(user=request.user)
+        if request.method == "POST":
+            forms = CreditCardForm(request.POST)
+            print(f"forms : {forms}")
+            if forms.is_valid():
+                print("form is valid")
+                new_form = forms.save(commit=False)
+                new_form.user = request.user
+
+                new_form.save()
+
+                card_id = new_form.card_id
+                messages.success(request, "Card Added successfully")
+                return redirect("dashboard")
+
+        else:
+            forms = CreditCardForm()
+        context = {
+            "account": account,
+            "kyc": kyc,
+            "sender_transaction": sender_transaction,
+            "receiver_transaction": receiver_transaction,
+            "request_sent_transaction": request_sent_transaction,
+            "request_received_transaction": request_received_transaction,
+            "transaction": transaction,
+            "payout": payout,
+            "recent_transactions": recent_transactions,
+            "forms": forms,
+            "cards": cards,
+        }
+        return render(request, "account/dashboard.html", context)
+    else:
+        messages.error(request, "You have to be logged in")
+        return redirect("loginUser")
 
 
 @login_required(login_url="loginUser")
@@ -364,6 +404,7 @@ def receive_request(request):
     return render(request, "account/receive_payment.html", context)
 
 
+@login_required(login_url="loginUser")
 def receive_request_2(request, account_id):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
@@ -373,6 +414,7 @@ def receive_request_2(request, account_id):
     return render(request, "account/receive_payment2.html", context)
 
 
+@login_required(login_url="loginUser")
 def request_process(request, account_id):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
@@ -403,6 +445,7 @@ def request_process(request, account_id):
         return redirect("receive_request_2", account_id)
 
 
+@login_required(login_url="loginUser")
 def receive_request_3(request, transaction_id):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
@@ -418,6 +461,7 @@ def receive_request_3(request, transaction_id):
     return render(request, "account/receive_payment3.html", context)
 
 
+@login_required(login_url="loginUser")
 def receive_request_confirmation(request, transaction_id):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
@@ -447,6 +491,7 @@ def receive_request_confirmation(request, transaction_id):
         return redirect("receive_request_3", transaction_id)
 
 
+@login_required(login_url="loginUser")
 def successful_request_confirmation(request, transaction_id):
     account = request.user.account
     kyc = account.kyc
@@ -456,6 +501,7 @@ def successful_request_confirmation(request, transaction_id):
     return render(request, "account/request_success.html", context)
 
 
+@login_required(login_url="loginUser")
 def request_transaction_detail(request, transaction_id):
     account = Account.objects.get(user=request.user)
     kyc = account.kyc
@@ -471,6 +517,7 @@ def request_transaction_detail(request, transaction_id):
     return render(request, "account/request_transaction_detail.html", context)
 
 
+@login_required(login_url="loginUser")
 def accept_request(request, transaction_id):
     account = request.user.account
     transaction = Transaction.objects.get(transaction_id=transaction_id)
@@ -510,6 +557,7 @@ def accept_request(request, transaction_id):
         return redirect("transactions")
 
 
+@login_required(login_url="loginUser")
 def cancel_request(request, transaction_id):
     transaction = Transaction.objects.get(transaction_id=transaction_id)
     account = transaction.sender
@@ -525,6 +573,7 @@ def cancel_request(request, transaction_id):
         return redirect("transactions")
 
 
+@login_required(login_url="loginUser")
 def decline_request(request, transaction_id):
     transaction = Transaction.objects.get(transaction_id=transaction_id)
     try:
@@ -537,3 +586,83 @@ def decline_request(request, transaction_id):
     except:
         messages.warning(request, "There was an error please try again")
         return redirect("transactions")
+
+
+def card_detail(request, card_id):
+    kyc = request.user.kyc
+    try:
+        card = CreditCard.objects.get(card_id=card_id)
+    except ObjectDoesNotExist:
+        messages.error(request, "Card not found")
+        return redirect("dashboard")
+    context = {"kyc": kyc, "card": card}
+    return render(request, "account/card-details.html", context)
+
+
+def fund_card(request, card_id):
+    card = CreditCard.objects.get(card_id=card_id)
+    print(card)
+    account = request.user.account
+    print(account.account_balance.amount)
+
+    if request.method == "POST":
+        amount = Money(request.POST.get("funding_amount"), currency="USD")
+        print(amount)
+        print(account.account_balance - amount)
+        if amount > account.account_balance or account.account_balance.amount == 0:
+            messages.error(request, "Insufficient funds")
+            return redirect("card_detail", card_id)
+        else:
+            account.account_balance -= amount
+            account.save()
+
+            card.amount += amount
+            card.save()
+            messages.success(request, "Funds successfully transferred")
+            return redirect("dashboard")
+    else:
+        return redirect("card_detail", card_id)
+
+
+def withdraw(request, card_id):
+    card = get_object_or_404(CreditCard, card_id=card_id, user=request.user)
+    account = request.user.account
+    print(card)
+    if request.method == "POST":
+        amount = Money(request.POST.get("amount"), currency="USD")
+
+        if amount.amount > 0 and amount <= card.amount:
+            account.account_balance += amount
+            account.save()
+            card.amount -= amount
+            card.save()
+            messages.success(request, "Funds withdrawn successfully")
+            return redirect("dashboard")
+
+        else:
+            messages.error(request, "Insufficient Funds")
+            return redirect("card_detail", card_id)
+
+    else:
+        return redirect("card_detail", card_id)
+
+
+def delete_card(request, card_id):
+    # Retrieve the CreditCard object with the specified card_id
+    card = get_object_or_404(CreditCard, card_id=card_id)
+
+    # Retrieve the account of the logged in user
+    account = request.user.account
+    # check if the logged in user and the card user are the same people and if the card has a positive amount
+    if request.user == card.user and card.amount.amount > 0:
+        print("here")
+        print(account.account_balance)
+        account.account_balance += card.amount
+
+        account.save()
+        print(account.account_balance)
+
+        card.amount = 0
+
+    card.delete()
+    return redirect("dashboard")

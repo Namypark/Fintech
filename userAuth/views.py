@@ -50,7 +50,7 @@ def loginUser(
 
 def logoutUser(request) -> HttpResponseRedirect | HttpResponsePermanentRedirect:
     logout(request)
-    messages.success(request, "Logged out successfully")
+    # messages.success(request, "Logged out successfully")
     return redirect("index")
 
 

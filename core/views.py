@@ -13,3 +13,8 @@ def index(request):
 
 def home(request):
     return render(request, "core/home.html")
+
+
+def error_404(request, exception):
+    print(exception)
+    return render(request, "core/error404.html", status=404)

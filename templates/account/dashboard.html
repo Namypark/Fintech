@@ -1,262 +1,753 @@
 {% extends "core/base1.html" %} {% load static %} {% block content %}
 
-<section class="dashboard-section body-collapse transactions">
+<!-- Dashboard Section start -->
+<section class="dashboard-section body-collapse">
   <div class="overlay pt-120">
     <div class="container-fruid">
-      <div class="head-area">
-        <div class="row">
-          <div class="col-lg-5 col-md-4">
-            <h4>Transactions</h4>
-          </div>
-          <div class="col-lg-7 col-md-8">
-            <div class="transactions-right d-flex align-items-center">
-              <form action="#" class="flex-fill">
-                <div class="form-group d-flex align-items-center">
-                  <img src="assets/images/icon/search.png" alt="icon" />
-                  <input type="text" placeholder="Type to search..." />
+      <div class="row">
+        <div class="col-xl-8 col-lg-7">
+          <div class="section-content">
+            <div class="acc-details">
+              <div class="top-area">
+                <div class="left-side">
+                  <h5>Hi,{{kyc.full_name}}</h5>
+                  <h2>{{account.account_balance}}</h2>
+                  <h5 class="receive">
+                    {% if receiver_transaction %} Last Received
+                    <span>{{receiver_transaction.first.amount}}</span>
+                    {% else %} No Money received recently {% endif %}
+                  </h5>
                 </div>
-              </form>
-              <a href="javascript:void(0)">Monthly Statement</a>
+                <div class="right-side">
+                  <div class="right-top">
+                    <select>
+                      <option value="1">US Dollar</option>
+                    </select>
+                    <div class="dropdown-area">
+                      <button
+                        type="button"
+                        id="dropdownMenuButton1"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <img
+                          src="{% static 'assets/images/icon/option.png' %}"
+                          alt="icon"
+                        />
+                      </button>
+                      <ul
+                        class="dropdown-menu"
+                        aria-labelledby="dropdownMenuButton1"
+                      >
+                        <li>
+                          <a class="dropdown-item" href="#">Fiat Currency</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="#">crypto Currency</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="right-bottom">
+                    <h4>${{payout}}</h4>
+                    <h5>Payouts</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="bottom-area">
+                <div class="left-side">
+                  <a href="{% url "search_account" %}" class="cmn-btn">Transfer Money</a>
+                  <a href="deposit-money.html" class="cmn-btn">Add Money</a>
+                  <a href="withdraw-money-step-1.html" class="cmn-btn"
+                    >Withdraw</a
+                  >
+                </div>
+                <div class="right-side">
+                  <div class="dropdown-area">
+                    <button
+                      type="button"
+                      id="dropdownMenuButton1"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <img
+                        src="{% static 'assets/images/icon/option.png' %}"
+                        alt="icon"
+                      />
+                    </button>
+                    <ul
+                      class="dropdown-menu"
+                      aria-labelledby="dropdownMenuButton1"
+                    >
+                      <li>
+                        <a class="dropdown-item" href="recipients.html"
+                          >Recipients</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="{% url "receive_request" %}"
+                          >Request Money</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="{% url "search_account"  %}"
+                          >Send Money</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="pay-step-1.html"
+                          >Bill Pay</a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="transactions-area mt-40">
+              {% comment %} <div class="section-text">
+                <h5>Transactions</h5>
+                <p>Updated every several minutes</p>
+              </div>
+              <div
+                class="top-area d-flex align-items-center justify-content-between"
+              >
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link active"
+                    id="latest-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#latest"
+                    type="button"
+                    role="tab"
+                    aria-controls="latest"
+                    aria-selected="true"
+                  >
+                    Sent Transfers
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="upcoming-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#upcoming"
+                    type="button"
+                    role="tab"
+                    aria-controls="upcoming"
+                    aria-selected="false"
+                  >
+                    Received Transfers
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="request-sender-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#request-sender"
+                    type="button"
+                    role="tab"
+                    aria-controls="request-sender"
+                    aria-selected="false"
+                  >
+                   Sent Requests
+                  </button>
+                </li>
+               
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="request-receiver-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#request-receiver"
+                    type="button"
+                    role="tab"
+                    aria-controls="request-receiver"
+                    aria-selected="false"
+                  >
+                    Received Requests
+                  </button>
+                </li>
+               
+
+              </ul>
+                <div class="view-all d-flex align-items-center">
+                  <a href="javascript:void(0)">View All</a>
+                  <img
+                    src="{% static 'assets/images/icon/right-arrow.png' %}"
+                    alt="icon"
+                  />
+                </div>
+              </div>
+              <div class="tab-content mt-40">
+                <div
+                  class="tab-pane fade show active"
+                  id="latest"
+                  role="tabpanel"
+                  aria-labelledby="latest-tab">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Name/ Business</th>
+                          <th scope="col">Date</th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Amount</th>
+                          <th scope="col">Action</th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for sender_transactions in sender_transaction %}
+                        <tr
+                          data-bs-toggle="modal"
+                          data-bs-target="#transactionsMod"
+                        >
+                          <th scope="row">
+                            <p>
+                              {{sender_transactions.receiver.kyc.full_name}}
+                            </p>
+                            <p class="mdr">
+                              {{sender_transactions.transaction_description}}
+                            </p>
+                          </th>
+                          <td>
+                            <p>
+                              {{sender_transactions.transaction_time| time}}
+                            </p>
+                            <p class="mdr">
+                              {{sender_transactions.transaction_time|date:"F, j Y"}}
+                            </p>
+                          </td>
+                          <td>
+                            <p class="{{sender_transactions.status}}">
+                              {{sender_transactions.get_status_display}}
+                            </p>
+                          </td>
+                          <td>
+                            {% if sender_transactions.amount.amount > 0 and sender_transactions.status != 'processing'%}
+                            <p style="color: red; font-weight:light;">-{{sender_transactions.amount}}</p>
+                            {% else %}
+                            <p>{{sender_transactions.amount}}</p>
+
+                            {% endif %}
+                           
+                          </td>
+                          <td>
+                            <a href="{% url "transaction_detail" sender_transactions.transaction_id %}" class="btn btn-primary"><i class='fa-solid fa-eye'></i> view</a>
+
+                          </td>
+                        </tr>
+
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div
+                  class="tab-pane fade"
+                  id="upcoming"
+                  role="tabpanel"
+                  aria-labelledby="upcoming-tab"
+                >
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Name/ Business</th>
+                          <th scope="col">Date</th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Amount</th>
+                          <th scope="col">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for receiver_transactions in receiver_transaction %}
+                        <tr
+                          data-bs-toggle="modal"
+                          data-bs-target="#transactionsMod"
+                        >
+                          <th scope="row">
+                            <p>
+                             <a href="{% url "transaction_detail" receiver_transactions.transaction_id %}">{{receiver_transactions.receiver.kyc.full_name}}</a> 
+                            </p>
+                            <p class="mdr">
+                              {{receiver_transactions.transaction_description}}
+                            </p>
+                          </th>
+                          <td>
+                            <p>
+                              {{receiver_transactions.transaction_time| time}}
+                            </p>
+                            <p class="mdr">
+                              {{receiver_transactions.transaction_time|date:"F, j Y"}}
+                            </p>
+                          </td>
+                          <td>
+                            <p class="{{receiver_transactions.status}}">
+                              {{receiver_transactions.get_status_display}}
+                            </p>
+                          </td>
+                          <td>
+                            {% if receiver_transactions.amount.amount > 0%}
+                            <p style="color: #49C96D">+{{receiver_transactions.amount}}</p>
+                            {% else %}
+                            <p>{{receiver_transactions.amount}}</p>
+
+                            {% endif %}
+
+                          </td>
+                        </td>
+                        <td>
+                          <a href="{% url 'transaction_detail' receiver_transactions.transaction_id %}" class="btn btn-primary"><i class='fa-solid fa-eye'></i> view</a>
+
+                        </td>
+                        </tr>
+                        {% endfor %}
+                         
+                        
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!--Request sent--> 
+                <div
+                  class="tab-pane fade"
+                  id="request-sender"
+                  role="tabpanel"
+                  aria-labelledby="request-sender-tab"
+                >
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Name/ Business</th>
+                          <th scope="col">Date </th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Amount</th>
+                          <th scope="col">Action</th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for transactions in request_sent_transaction %}
+                        <tr
+                          data-bs-toggle="modal"
+                          data-bs-target="#transactionsMod"
+                        >
+                          <th scope="row">
+                            <p>
+                             <a href="{% url "request_transaction_detail" transactions.transaction_id %}">{{transactions.sender.kyc.full_name}}</a> 
+                            </p>
+                            <p class="mdr">
+                              {{transactions.transaction_description}}
+                            </p>
+                          </th>
+                          <td>
+                            <p>
+                              {{transactions.transaction_time| time}}
+                            </p>
+                            <p class="mdr">
+                              {{transactions.transaction_time|date:"F, j Y"}}
+                            </p>
+                          </td>
+                          <td>
+                            {% if transactions.status == 'decline' %}
+                            <p id='transaction-status' class="{{transactions.status}}" style="color: grey;">
+                              {{transactions.get_status_display}}
+                            {% else %}
+                            <p id='transaction-status' class="{{transactions.status}}">
+                              {{transactions.get_status_display}}
+                            {% endif %}
+                            
+                            </p>
+                          </td>
+                          <td>
+                            {% if transactions.amount.amount > 0 %}
+
+                              {% if transactions.status == 'request_completed' %}
+                              
+                            <p id='transaction-amount' style="color:#49C96D">+{{transactions.amount}}</p>
+                            {% elif transactions.status == 'decline'%}
+                            <p id='transaction-amount' style="color:grey">{{transactions.amount}}</p>
+                            {% else %}
+                            <p id='transaction-amount'>{{transactions.amount}}</p>
+                            {% endif %}
+                             
+                              {% else %}
+                              <p id='transaction-amount'>{{transactions.amount}}</p>
+                            {% endif %}
+                           
+                          </td>
+                          <td>
+                            {% if transactions.status == 'request_processing' %}
+                            <a href="{% url "request_transaction_detail" transactions.transaction_id %}" class="btn btn-primary"><i class='fa-solid fa-eye'></i> view</a>
+                            <a  href= "{% url "cancel_request"  transactions.transaction_id %}" class="btn btn-danger"><i class='fa-solid fa-delete-left'></i> cancel</a>
+                            {% elif transactions.status == 'request_completed' %}
+                            <a href="{% url "request_transaction_detail" transactions.transaction_id %}" class="btn btn-success"><i class='fa-solid fa-circle-check'></i>  credited</a>
+
+                            {% else %}
+                            <a href="{% url "request_transaction_detail" transactions.transaction_id %}" class="btn btn-primary"><i class='fa-solid fa-eye'></i> view</a>
+
+                            {% endif %}
+                            
+
+                          </td>
+                        </tr>
+                        {% endfor %}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                </div>
+
+                
+                <!--REQEUST RECEIVED-->
+                <div
+                  class="tab-pane fade"
+                  id="request-receiver"
+                  role="tabpanel"
+                  aria-labelledby="request-receiver-tab"
+                >
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Name/ Business</th>
+                          <th scope="col">Date </th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Amount</th>
+                          <th scope="col">Action</th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for transactions in request_received_transaction %}
+                        <tr
+                          data-bs-toggle="modal"
+                          data-bs-target="#transactionsMod"
+                        >
+                          <th scope="row">
+                            <p>
+                             <a href="{% url "request_transaction_detail" transactions.transaction_id %}">{{transactions.sender.kyc.full_name}}</a> 
+                            </p>
+                            <p class="mdr">
+                              {{transactions.transaction_description}}
+                            </p>
+                          </th>
+                          <td>
+                            <p>
+                              {{transactions.transaction_time| time}}
+                            </p>
+                            <p class="mdr">
+                              {{transactions.transaction_time|date:"F, j Y"}}
+                            </p>
+                          </td>
+                          <td>{% if transactions.status == 'decline' %}
+                            <p id='transaction-status' class="{{transactions.status}}" style="color: grey;">{{transactions.get_status_display}}</p>
+                            {% else %}
+                            <p id='transaction-status' class="{{transactions.status}}">
+                              {{transactions.status}}
+                            </p>
+                            {% endif %}
+                            
+                          </td>
+                          <td>
+                            {% if transactions.amount.amount > 0%}
+
+                              {% if transactions.status == 'request_completed' %}
+                              
+                                <p id='transaction-amount' style="color:red">-{{transactions.amount}}</p>
+                                {% elif transactions.status == 'decline'%}
+                                <p id='transaction-amount' style="color:grey">{{transactions.amount}}</p>
+                                {% else %}
+                                <p id='transaction-amount'>{{transactions.amount}}</p>
+                              {% endif %}
+                              {% else %}
+                              <p id='transaction-amount'>{{transactions.amount}}</p>
+                            {% endif %}
+                         
+                          </td>
+                          <td>
+                            {% if transactions.status == 'request_processing' %}
+                            <a href="{% url "accept_request" transactions.transaction_id %}" class="btn btn-primary"><i class='fa-solid fa-circle-check'></i>  accept</a>
+                            <a href="{% url "decline_request"  transactions.transaction_id %}" class="btn btn-danger"><i class='fa-solid fa-delete-left'> </i>  decline</a>
+                            {% elif transactions.status == 'request_completed' %}
+                            <a href="{% url "request_transaction_detail" transactions.transaction_id %}" class="btn btn-success"><i class='fa-solid fa-circle-check'></i>  Paid</a>
+
+                            {% else %}
+                            <a href="{% url "request_transaction_detail" transactions.transaction_id %}" class="btn btn-primary"><i class='fa-solid fa-eye'></i>  view</a>
+
+                            {% endif %}
+
+                          </td>
+                        </tr>
+                        {% endfor %}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+                <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                    // Get all elements with class 'transaction-status'
+                    console.log('here')
+                    let transactionStatusElements = document.querySelectorAll('#transaction-status');
+                    //console.log(`transactionStatusElement: ${transactionStatusElements}`)
+                    // Loop through each element
+                    transactionStatusElements.forEach((element)=>{
+                      // Get the value of the 'status' class
+                      let amount = document.getElementById('transaction-amount')
+  
+                      let status = String(element.classList.value);
+                      console.log(`status: ${status}`)
+                      console.log(`type of status: ${typeof status}`)
+                      // Set innerHTML based on status
+                      switch(status){
+                        case 'request_completed':
+                          element.innerHTML= "Request Completed"
+                          element.style.color = '#49C96D'
+                          break;
+                        case 'request_processing':
+                          element.innerHTML= "Request Processing"
+                          element.style.color = '#F7A94A'
+                          console.log(element)
+  
+                          break;
+                        case 'request_sent':
+                          element.innerHTML= "Request Sent"
+                          break;
+                        case 'failed':
+                          element.style.color =  'red';
+                          element.innerHTML = 'Failed';
+                          break;
+  
+                        default:
+                          console.log('default')
+                      }
+                    });
+                  });
+                </script>
+                </div> {% endcomment %}
+              <!--End-->
+              <!--ends he-->
             </div>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-xl-12">
-          <div class="transactions-main">
-            <div class="top-items">
-              <h6>All Transactions</h6>
-              <div class="export-area">
-                <ul class="d-flex align-items-center">
-                  <li>
-                    <a href="javascript:void(0)"
-                      ><img
-                        src="assets/images/icon/printer.png"
-                        alt="icon"
-                      />Print</a
-                    >
-                  </li>
-                  <li>
-                    <a href="javascript:void(0)"
-                      ><img
-                        src="assets/images/icon/excel.png"
-                        alt="icon"
-                      />Excel</a
-                    >
-                  </li>
-                  <li>
-                    <a href="javascript:void(0)"
-                      ><img src="assets/images/icon/pdf.png" alt="icon" />PDF</a
-                    >
-                  </li>
-                  <li>
-                    <a href="javascript:void(0)"
-                      ><img src="assets/images/icon/csv.png" alt="icon" />CSV</a
-                    >
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="filters-item">
-              <div class="single-item">
-                <select>
-                  <option value="1">23 Nov 2021- 21 Feb 2022</option>
-                  <option value="2">23 Feb 2021- 21 Mar 2022</option>
-                  <option value="3">23 Mar 2021- 21 Apr 2022</option>
-                </select>
-              </div>
-              <div class="single-item">
-                <select>
-                  <option value="1">Balance</option>
-                  <option value="2">Balance</option>
-                  <option value="3">Balance</option>
-                </select>
-              </div>
-              <div class="single-item">
-                <select>
-                  <option>All Filters</option>
-                  <option value="1">Filters 1</option>
-                  <option value="2">Filters 2</option>
-                  <option value="3">Filters 3</option>
-                </select>
-              </div>
-              <div class="single-item">
-                <button>Clear Filters</button>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Name/ Business</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
-                    <th scope="row">
-                      <p>Bangkok Bank</p>
-                      <p class="mdr">Withdraw to bank account</p>
-                    </th>
-                    <td>
-                      <p>03:00 PM</p>
-                      <p class="mdr">10 Mar 2022</p>
-                    </td>
-                    <td>
-                      <p class="inprogress">In Progress</p>
-                    </td>
-                    <td>
-                      <p>-$520</p>
-                      <p class="mdr">$3.0</p>
-                    </td>
-                  </tr>
-                  <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
-                    <th scope="row">
-                      <p>Envato Pty Ltd</p>
-                      <p class="mdr">Marketplace Payment Received</p>
-                    </th>
-                    <td>
-                      <p>04:30 PM</p>
-                      <p class="mdr">01 Mar 2022</p>
-                    </td>
-                    <td>
-                      <p class="completed">Completed</p>
-                    </td>
-                    <td>
-                      <p>+$450</p>
-                      <p class="mdr">No Fees</p>
-                    </td>
-                  </tr>
-                  <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
-                    <th scope="row">
-                      <p>Mailchimp</p>
-                      <p class="mdr">Subscription Service Payment</p>
-                    </th>
-                    <td>
-                      <p>01:15 PM</p>
-                      <p class="mdr">25 Mar 2022</p>
-                    </td>
-                    <td>
-                      <p class="completed">Completed</p>
-                    </td>
-                    <td>
-                      <p>-$100</p>
-                      <p class="mdr">No Fees</p>
-                    </td>
-                  </tr>
-                  <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
-                    <th scope="row">
-                      <p>Facebook Ads</p>
-                      <p class="mdr">Ads Service</p>
-                    </th>
-                    <td>
-                      <p>07:05 PM</p>
-                      <p class="mdr">15 Mar 2022</p>
-                    </td>
-                    <td>
-                      <p class="pending">Pending</p>
-                    </td>
-                    <td>
-                      <p>$200</p>
-                      <p class="mdr">No Fees</p>
-                    </td>
-                  </tr>
-                  <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
-                    <th scope="row">
-                      <p>Upwork Escow Inc</p>
-                      <p class="mdr">Payment payment</p>
-                    </th>
-                    <td>
-                      <p>04:02 PM</p>
-                      <p class="mdr">10 Mar 2022</p>
-                    </td>
-                    <td>
-                      <p class="completed">Completed</p>
-                    </td>
-                    <td>
-                      <p>$450</p>
-                      <p class="mdr">$.5</p>
-                    </td>
-                  </tr>
-                  <tr data-bs-toggle="modal" data-bs-target="#transactionsMod">
-                    <th scope="row">
-                      <p>Ron Stewart</p>
-                      <p class="mdr">Payment Refund</p>
-                    </th>
-                    <td>
-                      <p>11:00 PM</p>
-                      <p class="mdr">21 Mar 2022</p>
-                    </td>
-                    <td>
-                      <p class="cancelled">Cancelled</p>
-                    </td>
-                    <td>
-                      <p>+$450</p>
-                      <p class="mdr">No Fees</p>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <nav
-              aria-label="Page navigation"
-              class="d-flex justify-content-center mt-40"
-            >
-              <ul
-                class="pagination justify-content-center align-items-center mb-40"
+        <div class="col-xl-4 col-lg-5">
+          <div class="side-items">
+            <div class="single-item">
+              <div
+                class="section-text d-flex align-items-center justify-content-between"
               >
-                <li class="page-item">
-                  <a
-                    class="page-link previous"
-                    href="javascript:void(0)"
-                    aria-label="Previous"
-                  >
-                    <i class="fa-solid fa-angles-left"></i>
-                  </a>
+                <h6>Linked Payment system</h6>
+                <div class="right-side">
+                  <div class="dropdown-area">
+                    <button
+                      type="button"
+                      id="dropdownMenuButton1"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <img
+                        src="{% static 'assets/images/icon/option.png' %}"
+                        alt="icon"
+                      />
+                    </button>
+                    <ul
+                      class="dropdown-menu"
+                      aria-labelledby="dropdownMenuButton1"
+                    >
+                      <li>
+                        <a class="dropdown-item" href="">Update</a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="javascript:void(0)"
+                          >Virtual card</a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                {% if cards %}
+                {% for card in cards %}
+                <a href="{% url "card_detail" card.card_id %}">
+                <div class="col-12">
+                  <div class="card__main">
+                      <div class="{% if card.card_type == 'master' %}masterCard {% elif card.card_type == 'verve'  %}Front_card {% else %}visaCard{% endif %}">
+                      <div class="top_card">
+                          <span class="visa">{{card.card_type|upper}}</span>
+                          <div class="logo">
+                              <img src="{% static 'assets1/images/logo.png' %}" class="logo" alt="logo">
+
+                          </div>
+                      </div>
+                      <div class="middle_card">
+                          <span class="chip"></span>
+                          <div class="card_number">{{card.card_number}}</div>
+                      </div>
+                      <div class="bottom_card">
+                          <div class="card_info">
+                          <div class="card_holder_name">{{card.amount}}</div>
+                          <div class="card_holder_name">{{card.cardholder_name}}</div>
+                          </div>
+                          <div class="card_info">
+                          <div class="card_holder_info">
+                            <span class="expire_month" >{{card.expiration_month}}</span>
+                           
+                              <span class="slash">/</span>
+                              <span class="expire_year">{{ card.expiration_year|stringformat:"s"|slice:"-2:" }}</span>
+                          </div>
+                          </div>
+                      </div>
+                      </div>
+                      <div class="back_card">
+                      <div class="top_card">
+                          <span class="black_strip"></span>
+                          <div class="cvc_strip">
+                          <span class="cvc_number">{{card.cvv}}</span>
+                          </div>
+                      </div>
+                      <div class="bottom_card">
+                          <div class="flex">
+                          <span class="sticker"></span>
+                          <div class="logo1">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                          </div>
+                          </div>
+                      </div>
+                      </div>
+                  </div>
+              </div>
+            </a>
+              {% endfor %}
+              {% endif %}
+
+                
+
+               
+                
+                  <div class="col-4">
+                    <div class="single-card">
+                        <button type="button" class="reg w-100" data-bs-toggle="modal" data-bs-target="#addcardMod">
+                            <img src="{% static 'assets1/images/add-new.png' %}" alt="image" class="w-100">
+                        </button>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+            <div class="single-item">
+              <div
+                class="section-text d-flex align-items-center justify-content-between"
+              >
+                <h6>Payment Analytics</h6>
+                <div class="select-box">
+                  <select>
+                    <option>Monthly</option>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                  </select>
+                </div>
+              </div>
+              <div id="chart">
+              </div>
+            </div>
+            <div class="single-item">
+              <div
+                class="section-text d-flex align-items-center justify-content-between"
+              >
+                <h6>Recipients</h6>
+                <div class="view-all d-flex align-items-center">
+                  <a href="javascript:void(0)">View All</a>
+                  <img
+                    src="{% static 'assets/images/icon/right-arrow.png' %}"
+                    alt="icon"
+                  />
+                </div>
+              </div>
+              <ul class="recipients-item">
+                {% for transactions in recent_transactions %}
+                <li 
+                id='recipients-list'
+                {% if transactions.sender == account  %}
+                class="sender"
+                {% else %}
+                class='receiver'
+                {% endif %}
+                >
+                  <p class="left d-flex align-items-center">
+                    <img
+                    {% if transactions.receiver == account %}
+                    src={{transactions.sender.kyc.image.url}}
+                    {% else %}
+                    src={{transactions.receiver.kyc.image.url}}
+                    {% endif %}
+                      
+                      alt="icon"
+                      style="width:40px; height:40px; border-radius:50%;"
+                    />
+                    <span class="info">
+                      <span>
+                       {% if transactions.receiver == account %}
+                       {{ transactions.sender.kyc.full_name}}
+                       {% else %}
+                       {{ transactions.receiver.kyc.full_name}}
+                       {% endif %}
+                      </span>
+                      <span>{{transactions.transaction_time|date }}</span>
+                    </span>
+                  </p>
+                  <p class="right">
+                    <span id='transaction-amount-small'>{{transactions.amount}}</span>
+                    <span>{{transactions.transaction_type|capfirst}}</span>
+                  </p>
                 </li>
-                <li class="page-item">
-                  <a
-                    class="page-link previous"
-                    href="javascript:void(0)"
-                    aria-label="Previous"
-                  >
-                    <i class="fa-solid fa-angle-left"></i>
-                  </a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="javascript:void(0)">1</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link active" href="javascript:void(0)">2</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="javascript:void(0)">3</a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="javascript:void(0)">...</a>
-                </li>
-                <li class="page-item">
-                  <a
-                    class="page-link next"
-                    href="javascript:void(0)"
-                    aria-label="Next"
-                  >
-                    <i class="fa-solid fa-angle-right"></i>
-                  </a>
-                </li>
-                <li class="page-item">
-                  <a
-                    class="page-link next"
-                    href="javascript:void(0)"
-                    aria-label="Next"
-                  >
-                    <i class="fa-solid fa-angles-right"></i>
-                  </a>
-                </li>
+                {% endfor %}
+               
+              
               </ul>
-            </nav>
+            </div>
+            <script>
+              document.addEventListener('DOMContentLoaded', function(){
+                let TransactionType = document.querySelectorAll('#recipients-list')
+                console.log(`TransactionType: ${TransactionType}`)       
+        
+                TransactionType.forEach((item) =>{
+                  console.log(item)
+                  let status = String(item.classList.value);
+                  console.log(`status: ${status}`)
+                  let TransactionAmount = item.querySelector('#transaction-amount-small')
+                  switch(status){
+                    case 'sender':
+                    TransactionAmount.style.color = 'red'
+                      break;
+                    case 'receiver':
+                    TransactionAmount.style.color = '#49C96D'
+
+                      break;
+                    default:
+                      console.log('default')
+                  }
+                  
+                });
+              });
+
+            </script>
+            
           </div>
         </div>
       </div>
@@ -265,7 +756,265 @@
 </section>
 <!-- Dashboard Section end -->
 
-<!-- Transactions Popup start -->
+<!-- Card Popup start -->
+<div class="card-popup">
+  <div class="container-fruid">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="modal fade" id="cardMod" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header justify-content-center">
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <div class="main-content">
+                <div class="top-area mb-40 mt-40 text-center">
+                  <div class="card-area mb-30">
+                    <img
+                      src="{% static 'assets/images/visa-card-2.png' %}"
+                      alt="image"
+                    />
+                  </div>
+                  <div class="text-area">
+                    <h5>Paylio payment Card</h5>
+                    <p>Linked: 01 Jun 2021</p>
+                  </div>
+                </div>
+                <div
+                  class="tab-area d-flex align-items-center justify-content-between"
+                >
+                  <ul class="nav nav-tabs mb-30" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="btn-link"
+                        id="cancel-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#cancel"
+                        type="button"
+                        role="tab"
+                        aria-controls="cancel"
+                        aria-selected="false"
+                      >
+                        <img
+                          src="{% static 'assets/images/icon/limit.png' %}"
+                          alt="icon"
+                        />
+                        Set transfer limit
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="d-none"
+                        id="limit-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#limit"
+                        type="button"
+                        role="tab"
+                        aria-controls="limit"
+                        aria-selected="true"
+                      ></button>
+                    </li>
+                    <li>
+                      <button>
+                        <img
+                          src="{% static 'assets/images/icon/remove.png' %}"
+                          alt="icon"
+                        />
+                        Remove from Linked
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <div class="tab-content mt-30">
+                  <div
+                    class="tab-pane fade show active"
+                    id="limit"
+                    role="tabpanel"
+                    aria-labelledby="limit-tab"
+                  >
+                    <div class="bottom-area">
+                      <p class="history">
+                        Transaction History : <span>20</span>
+                      </p>
+                      <ul>
+                        <li>
+                          <p class="left">
+                            <span>03:00 PM</span>
+                            <span>17 Oct, 2020</span>
+                          </p>
+                          <p class="right">
+                            <span>$160.48</span>
+                            <span>Withdraw</span>
+                          </p>
+                        </li>
+                        <li>
+                          <p class="left">
+                            <span>01:09 PM</span>
+                            <span>15 Oct, 2021</span>
+                          </p>
+                          <p class="right">
+                            <span>$106.58</span>
+                            <span>Withdraw</span>
+                          </p>
+                        </li>
+                        <li>
+                          <p class="left">
+                            <span>04:00 PM</span>
+                            <span>12 Oct, 2020</span>
+                          </p>
+                          <p class="right">
+                            <span>$176.58</span>
+                            <span>Withdraw</span>
+                          </p>
+                        </li>
+                        <li>
+                          <p class="left">
+                            <span>06:00 PM</span>
+                            <span>25 Oct, 2020</span>
+                          </p>
+                          <p class="right">
+                            <span>$167.85</span>
+                            <span>Withdraw</span>
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div
+                    class="tab-pane fade"
+                    id="cancel"
+                    role="tabpanel"
+                    aria-labelledby="cancel-tab"
+                  >
+                    <div class="main-area">
+                      <div class="transfer-area">
+                        <p>Set a transfer limit for paylio payment Card</p>
+                        <p class="mdr">Transfer Limit</p>
+                      </div>
+                      <form action="#">
+                        <div class="input-area">
+                          <input
+                            class="xxlr"
+                            placeholder="400.00"
+                            type="number"
+                          />
+                          <select>
+                            <option value="1">USD</option>
+                            <option value="2">USD</option>
+                            <option value="3">USD</option>
+                          </select>
+                        </div>
+                        <div
+                          class="bottom-area d-flex align-items-center justify-content-between"
+                        >
+                          <a href="javascript:void(0)" class="cmn-btn cancel"
+                            >Cancel and Back</a
+                          >
+                          <a href="javascript:void(0)" class="cmn-btn"
+                            >Confirm Transfer Limit</a
+                          >
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Card Popup start -->
+
+<!-- Add Card Popup start -->
+
+<div class="add-card">
+  <div class="container-fruid">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="modal fade" id="addcardMod" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header justify-content-between">
+                <h6>Add Card</h6>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <form action={% url "dashboard" %} method="POST">
+                {% csrf_token %}
+                <div class="row justify-content-center">
+                  <div class="col-md-12">
+                    <div class="single-input">
+                      <label for="cardNumber">Card Number</label>
+                      {{forms.card_number}}
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="single-input">
+                      <label for="cardHolder">Card Holder</label>
+                      {{forms.cardholder_name}}
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="single-input">
+                      <label for="month">Month</label>
+                     {{forms.expiration_month}}
+                      
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="single-input">
+                      <label for="year">Year</label>
+                     {{forms.expiration_year}}
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="single-input">
+                      <label for="cvv">CVV</label>
+                     {{forms.cvv}}
+                    </div>
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="single-input">
+                        <label for="cardNumber">Card Type</label><br>
+
+                        {{forms.card_type}}
+                        <br>
+                      </div>
+                    </div>
+                  <div class="col-12">
+                    <div class="btn-border w-100">
+                      <button type="submit" class="cmn-btn w-100">Add Card</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Add Card Popup start -->
+
+{% comment %} <!-- Transactions Popup start -->
 <div class="transactions-popup">
   <div class="container-fruid">
     <div class="row">
@@ -289,7 +1038,7 @@
                   <div class="col-sm-5 text-center">
                     <div class="icon-area">
                       <img
-                        src="assets/images/icon/transaction-details-icon.png"
+                        src="{% static 'assets/images/icon/transaction-details-icon.png' %}"
                         alt="icon"
                       />
                     </div>
@@ -344,7 +1093,11 @@
     </div>
   </div>
 </div>
-<!-- Transactions Popup start -->
+<!-- Transactions Popup start --> {% endcomment %}
+<script src="{% static 'assets1/js/jquery.min.js' %}"></script>
+
+<!-- THIS JQUERY IMPORT WAS AFFECTING THE SMART SELECT FOR CITY-->
+<script src="{% static 'assets1/js/plugin/jquery.nice-select.min.js' %}"></script>
 
 {% endblock content %}
 

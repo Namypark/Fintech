@@ -1,3 +1,4 @@
+from datetime import datetime
 from django import forms
 from django.forms import (
     ImageField,
@@ -8,7 +9,7 @@ from django.forms import (
     TextInput,
     Widget,
 )
-from .models import KYC, Transaction
+from .models import KYC, CreditCard
 
 
 class DateInput(DateInput):
@@ -62,16 +63,63 @@ class KYCForm(ModelForm):
 # data-value="16318" data-auto_choose="false"data-chainfield="country" data-url="/chaining/filter/cities_light/City/country/account/KYC/city" data-value="16318" data-auto_choose="false"
 
 
-class TransactionForm(ModelForm):
+class CreditCardForm(ModelForm):
+    cardholder_name = forms.CharField(
+        widget=forms.TextInput(
+            attrs={"placeholder": "Enter your cardholder name", "required": True}
+        )
+    )
+    card_number = forms.CharField(
+        max_length=16,
+        min_length=16,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Enter your card number",
+                "required": True,
+            }
+        ),
+    )
+    expiration_month = forms.IntegerField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": "04",
+                "required": True,
+                "id": "expiration_month",
+                "min": 1,
+                "max": 12,
+            }
+        )
+    )
+    expiration_year = forms.IntegerField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": "2025",
+                "required": True,
+                "id": "expiration_year",
+                "min": datetime.today().year,
+                "max": 9999,
+            }
+        )
+    )
+    cvv = forms.CharField(
+        min_length=3,
+        max_length=4,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "112",
+                "required": True,
+                "id": "cvv",
+            }
+        ),
+    )
+
     class Meta:
-        model = Transaction
+        model = CreditCard
         fields = [
-            "user",
-            "transaction_id",
-            "amount",
-            "receiver",
-            "sender",
-            "status",
-            "transaction_fee",
-            "reference_number",
+            "cardholder_name",
+            "card_number",
+            "card_type",
+            "expiration_month",
+            "expiration_year",
+            "cvv",
         ]

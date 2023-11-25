@@ -9,6 +9,13 @@ from djmoney.models.fields import MoneyField
 from smart_selects.db_fields import ChainedForeignKey
 import account
 from userAuth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from luhn import verify as luhn_verify
+from luhn import generate as luhn_generate
+from luhn import append as luhn_append
+from django.core.validators import BaseValidator
+from datetime import date
 
 # Create your models here.
 ACCOUNT_STATUS = (
@@ -51,6 +58,51 @@ TRANSACTION_STATUS = (
     ("request_processing", "REQUEST PROCESSING"),
     ("request_completed", "REQUEST COMPLETED"),
 )
+CARD_TYPE = (
+    ("master", "MASTER CARD"),
+    ("visa", "VISA"),
+    ("verve", "VERVE"),
+)
+
+
+# class LuhnValidator(BaseValidator):
+#     message = "Invalid credit card number."
+#     code = "invalid_credit_card_number"
+
+#     def compare(self, a, b):
+#         return a != b
+
+#     def clean(self, x):
+#         return str(x)
+
+#     def __call__(self, value):
+#         cleaned_value = luhn_generate(self.clean(value))
+#         if not luhn_verify(cleaned_value):
+#             cleaned_value = luhn_append(cleaned_value)
+#             return cleaned_value
+#             # raise ValidationError(self.message, code=self.code)
+
+
+class CVVValidator(BaseValidator):
+    message = "Invalid CVV."
+    code = "invalid_cvv"
+
+    def compare(self, a, b):
+        return a != b
+
+    def clean(self, x):
+        return str(x)
+
+    def __call__(self, value):
+        cleaned_value = self.clean(value)
+
+        # CVV should be either 3 or 4 digits
+        if not (len(cleaned_value) == 3 or len(cleaned_value) == 4):
+            raise ValidationError(self.message, code=self.code)
+
+        # CVV should contain only numeric characters
+        if not cleaned_value.isdigit():
+            raise ValidationError(self.message, code=self.code)
 
 
 def user_directory_path(instance, path):
@@ -192,3 +244,36 @@ class Transaction(models.Model):
             return f"{self.sender.transaction.transaction_id}"
         except:
             return f"{self.transaction_id}"
+
+
+class CreditCard(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    card_id = ShortUUIDField(
+        unique=True, length=5, max_length=20, alphabet="1234567890", prefix="CARD"
+    )
+    card_number = models.CharField(unique=True, max_length=16, blank=False)
+    cardholder_name = models.CharField(
+        max_length=255,
+    )
+    card_type = models.CharField(max_length=100, choices=CARD_TYPE)
+    expiration_month = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(12)]
+    )
+    expiration_year = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(limit_value=date.today().year)
+        ]  # Assuming the current year is 2023
+    )
+    cvv = models.CharField(max_length=4, validators=[CVVValidator])
+    amount = MoneyField(
+        max_digits=14, decimal_places=2, default_currency="USD", default=0
+    )
+    card_status = models.BooleanField(default=True)
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.cardholder_name}'s Card, card_number:{self.card_number[:8]+'x'*4+self.card_number[12:]}"

@@ -92,4 +92,24 @@ urlpatterns = [
         views.request_transaction_detail,
         name="request_transaction_detail",
     ),
+    path(
+        "card-detail/<str:card_id>",
+        views.card_detail,
+        name="card_detail",
+    ),
+    path(
+        "fund-card/<str:card_id>",
+        views.fund_card,
+        name="fund_card",
+    ),
+    path(
+        "withdraw/<str:card_id>",
+        views.withdraw,
+        name="withdraw",
+    ),
+    path(
+        "delete-card/<str:card_id>",
+        views.delete_card,
+        name="delete_card",
+    ),
 ]
